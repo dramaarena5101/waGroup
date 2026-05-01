@@ -14,13 +14,23 @@
 <body>
 
   <!-- ===================== NAME MODAL ===================== -->
-  <div id="nameModal" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-logo" id="welcomeLogo">🔥</div>
-      <h2>Selamat Datang!</h2>
-      <p>Masukkan nama kamu untuk bergabung ke grup <strong id="welcomeGroupName">Drama Arena 5101</strong></p>
-      <input type="text" id="nameInput" placeholder="Nama kamu..." maxlength="30" autocomplete="off" />
-      <button id="joinBtn" onclick="joinChat()">Gabung Sekarang 🎉</button>
+  <div id="nameModal" class="modal-overlay join-screen-bg">
+    <div class="join-card">
+      <div class="join-logo-wrapper">
+        <div class="modal-logo" id="welcomeLogo">🔥</div>
+      </div>
+      <h2 id="welcomeGroupName">Drama Arena 5101</h2>
+      <p class="join-creator" id="welcomeCreatorText">Created by Panitia Drama Arena 5101</p>
+      
+      <div class="join-avatars" id="welcomeAvatars">
+        <img src="assets/poster-acara-1.jpg" alt="Member" />
+        <img src="assets/poster-acara-2.jpg" alt="Member" />
+        <img src="assets/poster-acara-3.jpg" alt="Member" />
+        <div class="join-count">50+</div>
+      </div>
+
+      <input type="text" id="nameInput" placeholder="Masukkan namamu..." maxlength="30" autocomplete="off" />
+      <button id="joinBtn" onclick="joinChat()">Join Group</button>
     </div>
   </div>
 
@@ -77,7 +87,7 @@
     <div class="info-header">
       <button onclick="closeInfo()" class="info-back">←</button>
       <span>Info Grup</span>
-    </div>
+    </div>@
     <div class="info-body">
       <div class="info-banner">
         <div class="group-profile-pic" onclick="changeProfilePic()">
