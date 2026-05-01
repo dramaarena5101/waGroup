@@ -8,6 +8,7 @@ let lastSendTime  = 0;
 let unreadCount   = 0;
 let lastDateLabel = '';
 let callTimer     = null;
+let replyingTo    = null; // { name, text, id }
 
 const SEND_DELAY_MS = 2000;   // anti-spam
 const MSG_LIMIT     = 100;    // pesan terakhir
@@ -21,7 +22,7 @@ const APP_CONFIG = {
     { sender: "Panitia Drama Arena 5101", color: "#E91E63", time: "08.00", content: "Selamat datang di grup resmi Darama Arena 5101! Di sini kamu bisa sharing info, tanya-tanya, dan dukung para penampil! 🔥" },
     { sender: "Panitia Drama Arena 5101", color: "#E91E63", time: "08.01", content: `📍 Lokasi acara: <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" class="welcome-link">Lihat di Google Maps</a>` },
     { sender: "Panitia Drama Arena 5101", color: "#E91E63", time: "08.01", content: `🖼️ Berikut poster-poster acara Darama Arena 5101:<div class="bubble-images"><img src="assets/poster-acara-1.jpg" alt="Poster Drama" class="chat-poster-img" onclick="previewImage(this)"><img src="assets/poster-acara-2.jpg" alt="Poster Paduan Suara" class="chat-poster-img" onclick="previewImage(this)"><img src="assets/poster-acara-3.jpg" alt="Poster Tari" class="chat-poster-img" onclick="previewImage(this)"><img src="assets/poster-acara-4.jpg" alt="Poster Band" class="chat-poster-img" onclick="previewImage(this)"></div>` },
-    { sender: "Andi", color: "#2196F3", time: "08.02", content: "Min, ada link guide booknya gk? Biar kita bisa prepare sebelum hari H 🎯" },
+    { sender: "Andi", color: "#2196F3", time: "08.02", content: "Min, ada link guide booknya gk? Biar kita bisa prepare sebelum hari H 🎯", isOwn: true },
     { sender: "Panitia Drama Arena 5101", color: "#E91E63", time: "08.02", content: `📚 Guide Book: <a href="assets/guide-book.pdf" target="_blank" class="welcome-link">Download di sini</a>` },
     { sender: "Panitia Drama Arena 5101", color: "#E91E63", time: "08.03", content: "Yuk saling kenalan, share pengalaman, dan ramaikan chat ini! 🎉" }
   ]
@@ -57,22 +58,27 @@ function renderStaticMessages() {
   
   APP_CONFIG.staticMessages.forEach(msg => {
     const wrap = document.createElement('div');
-    wrap.className = 'bubble-wrap in admin-static';
+    wrap.className = `bubble-wrap admin-static ${msg.isOwn ? 'out' : 'in'}`;
     
-    const nameEl = document.createElement('div');
-    nameEl.className = 'bubble-name';
-    nameEl.style.color = msg.color;
-    nameEl.style.fontWeight = '800';
-    nameEl.textContent = msg.sender;
+    if (!msg.isOwn) {
+      const nameEl = document.createElement('div');
+      nameEl.className = 'bubble-name';
+      nameEl.style.color = msg.color;
+      nameEl.style.fontWeight = '800';
+      nameEl.textContent = msg.sender;
+      wrap.appendChild(nameEl);
+    }
     
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
     bubble.innerHTML = `
       ${msg.content}
-      <div class="bubble-meta"><span class="bubble-time">${msg.time}</span></div>
+      <div class="bubble-meta">
+        <span class="bubble-time">${msg.time}</span>
+        ${msg.isOwn ? '<span class="bubble-tick">✓✓</span>' : ''}
+      </div>
     `;
     
-    wrap.appendChild(nameEl);
     wrap.appendChild(bubble);
     chatArea.insertBefore(wrap, loader);
   });
@@ -124,6 +130,14 @@ function joinChat() {
   currentUser = escapeHtml(name);
   localStorage.setItem('ps_username', currentUser);
   hideModal('nameModal');
+  
+  // Fullscreen on mobile
+  const docEl = window.document.documentElement;
+  const reqFS = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
+  if(reqFS && window.innerWidth < 480) {
+    reqFS.call(docEl).catch(()=>{});
+  }
+  
   initChat();
 }
 window.joinChat = joinChat;
@@ -274,15 +288,22 @@ function sendMessage() {
   const btn = document.getElementById('sendBtn');
   btn.disabled = true;
 
-  window._push(window._ref, {
+  const payload = {
     name:      currentUser,
     message:   escapeHtml(text),
     timestamp: Date.now(),
     isAdmin:   false
-  }).then(() => {
+  };
+
+  if (replyingTo) {
+    payload.replyTo = replyingTo;
+  }
+
+  window._push(window._ref, payload).then(() => {
     input.value = '';
     lastSendTime = Date.now();
     closeEmojiPicker();
+    cancelReply();
   }).catch(err => {
     showToast('❌ Gagal kirim. Coba lagi.');
     console.error(err);
@@ -334,10 +355,21 @@ function appendBubble(msg, isOwn) {
     wrap.appendChild(nameEl);
   }
 
+  let replyHtml = '';
+  if (msg.replyTo) {
+    replyHtml = `
+      <div class="quoted-msg">
+        <div class="quoted-name">${escapeHtml(msg.replyTo.name)}</div>
+        <div class="quoted-text">${msg.replyTo.text}</div>
+      </div>
+    `;
+  }
+
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
   bubble.innerHTML = `
-    ${msg.message}
+    ${replyHtml}
+    <div class="message-text">${msg.message}</div>
     <div class="bubble-meta">
       <span class="bubble-time">${timeStr}</span>
       ${isOwn ? '<span class="bubble-tick">✓✓</span>' : ''}
@@ -383,26 +415,30 @@ window.toggleBubbleDropdown = function(btn) {
 window.replyToMessageDropdown = function(btn) {
   const bubbleWrap = btn.closest('.bubble-wrap');
   const senderName = bubbleWrap.querySelector('.bubble-name')?.textContent || 'Someone';
-  const messageText = bubbleWrap.dataset.msgText || bubbleWrap.querySelector('.bubble').innerText.split('\n')[0];
+  const messageText = bubbleWrap.dataset.msgText || bubbleWrap.querySelector('.message-text')?.innerText || bubbleWrap.querySelector('.bubble').innerText.split('\n')[0];
+  const msgId = bubbleWrap.dataset.msgId || '';
+  
+  replyingTo = { name: senderName, text: messageText, id: msgId };
+  
+  document.getElementById('replyPreviewName').textContent = senderName;
+  document.getElementById('replyPreviewText').textContent = messageText;
+  document.getElementById('replyPreviewBar').classList.remove('hidden');
+  
   const input = document.getElementById('msgInput');
-  input.value = `Reply to ${senderName}: ${messageText}`;
   input.focus();
   btn.closest('.bubble-dropdown-list').classList.remove('show');
-  showToast('Reply mode');
+}
+
+window.cancelReply = function() {
+  replyingTo = null;
+  document.getElementById('replyPreviewBar').classList.add('hidden');
 }
 
 /* ============================
    MESSAGE ACTIONS (Reply/Edit)
    ============================ */
 function replyToMessage(btn) {
-  const bubbleWrap = btn.closest('.bubble-wrap');
-  const senderName = bubbleWrap.querySelector('.bubble-name')?.textContent || 'Someone';
-  const messageText = bubbleWrap.dataset.msgText || '';
-  
-  const input = document.getElementById('msgInput');
-  input.value = `↩️ Replying to ${senderName}: ${messageText}`;
-  input.focus();
-  showToast('Membalas pesan...');
+  window.replyToMessageDropdown(btn);
 }
 
 function editMessage(btn) {
