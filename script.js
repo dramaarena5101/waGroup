@@ -12,19 +12,80 @@ let callTimer     = null;
 const SEND_DELAY_MS = 2000;   // anti-spam
 const MSG_LIMIT     = 100;    // pesan terakhir
 
-/* ---- ADMIN BOT ---- */
-const ADMIN_MESSAGES = [
-  "🎭 Selamat datang di grup resmi Pentas Seni 2026! Silahkan kirim ucapan dan dukungan untuk para penampil!",
-  "📌 Acara dimulai pukul 07.00 WIB. Harap hadir tepat waktu!",
-  "🔊 Mohon jaga ketertiban selama acara berlangsung. Terima kasih! 🎊",
-  "✨ Semangat untuk semua penampil! Tunjukkan yang terbaik!",
-  "💐 Selamat menikmati Pentas Seni 2026! Bersama kita rayakan karya terbaik! 🌟"
-];
+/* ---- CONFIGURATION ---- */
+const APP_CONFIG = {
+  groupName: "Darama Arena 5101",
+  groupAvatar: "🔥", // Emoji atau URL gambar
+  pageTitle: "Darama Arena 5101 – Grup WhatsApp",
+  staticMessages: [
+    { sender: "Panitia Drama Arena 5101", color: "#E91E63", time: "08.00", content: "Selamat datang di grup resmi Darama Arena 5101! Di sini kamu bisa sharing info, tanya-tanya, dan dukung para penampil! 🔥" },
+    { sender: "Panitia Drama Arena 5101", color: "#E91E63", time: "08.01", content: `📍 Lokasi acara: <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" class="welcome-link">Lihat di Google Maps</a>` },
+    { sender: "Panitia Drama Arena 5101", color: "#E91E63", time: "08.01", content: `🖼️ Berikut poster-poster acara Darama Arena 5101:<div class="bubble-images"><img src="assets/poster-acara-1.jpg" alt="Poster Drama" class="chat-poster-img" onclick="previewImage(this)"><img src="assets/poster-acara-2.jpg" alt="Poster Paduan Suara" class="chat-poster-img" onclick="previewImage(this)"><img src="assets/poster-acara-3.jpg" alt="Poster Tari" class="chat-poster-img" onclick="previewImage(this)"><img src="assets/poster-acara-4.jpg" alt="Poster Band" class="chat-poster-img" onclick="previewImage(this)"></div>` },
+    { sender: "Andi", color: "#2196F3", time: "08.02", content: "Min, ada link guide booknya gk? Biar kita bisa prepare sebelum hari H 🎯" },
+    { sender: "Panitia Drama Arena 5101", color: "#E91E63", time: "08.02", content: `📚 Guide Book: <a href="assets/guide-book.pdf" target="_blank" class="welcome-link">Download di sini</a>` },
+    { sender: "Panitia Drama Arena 5101", color: "#E91E63", time: "08.03", content: "Yuk saling kenalan, share pengalaman, dan ramaikan chat ini! 🎉" }
+  ]
+};
+
+function applyAppConfig() {
+  const setText = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+  setText('pageTitle', APP_CONFIG.pageTitle);
+  setText('welcomeGroupName', APP_CONFIG.groupName);
+  setText('callGroupName', APP_CONFIG.groupName);
+  setText('videoCallerName', APP_CONFIG.groupName + ' • Live');
+  setText('infoGroupName', APP_CONFIG.groupName);
+  setText('mainGroupName', APP_CONFIG.groupName);
+
+  const setAvatar = (id, avatar) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (avatar.length <= 2) {
+      el.textContent = avatar;
+    } else {
+      el.innerHTML = `<img src="${avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
+    }
+  };
+  setAvatar('welcomeLogo', APP_CONFIG.groupAvatar);
+  setAvatar('callAvatar', APP_CONFIG.groupAvatar);
+  setAvatar('infoAvatar', APP_CONFIG.groupAvatar);
+  setAvatar('mainAvatar', APP_CONFIG.groupAvatar);
+}
+
+function renderStaticMessages() {
+  const chatArea = document.getElementById('chatArea');
+  const loader = document.getElementById('chatLoader');
+  
+  APP_CONFIG.staticMessages.forEach(msg => {
+    const wrap = document.createElement('div');
+    wrap.className = 'bubble-wrap in admin-static';
+    
+    const nameEl = document.createElement('div');
+    nameEl.className = 'bubble-name';
+    nameEl.style.color = msg.color;
+    nameEl.style.fontWeight = '800';
+    nameEl.textContent = msg.sender;
+    
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.innerHTML = `
+      ${msg.content}
+      <div class="bubble-meta"><span class="bubble-time">${msg.time}</span></div>
+    `;
+    
+    wrap.appendChild(nameEl);
+    wrap.appendChild(bubble);
+    chatArea.insertBefore(wrap, loader);
+  });
+}
+
 
 /* ============================
    INIT
    ============================ */
 document.addEventListener('DOMContentLoaded', () => {
+  applyAppConfig();
+  renderStaticMessages();
+  
   const saved = localStorage.getItem('ps_username');
   if (saved) {
     currentUser = saved;
@@ -172,9 +233,6 @@ function initChat() {
 function startListening() {
   const loader = document.getElementById('chatLoader');
   const q = window._query(window._ref, window._limitToLast(MSG_LIMIT));
-
-  // Check if bot message needed
-  checkAndSendBotWelcome();
 
   window._onChildAdded(q, (snapshot) => {
     if (loader) loader.remove();
@@ -355,50 +413,6 @@ function editMessage(btn) {
   input.value = messageText;
   input.focus();
   showToast('Edit pesan...');
-}
-
-/* ============================
-   ADMIN BOT
-   ============================ */
-async function checkAndSendBotWelcome() {
-  try {
-    const q = window._query(window._ref, window._limitToLast(5));
-    const snap = await window._get(q);
-    if (!snap.exists()) {
-      // No messages at all — kirim pesan admin friendly, link, poster, dsb
-      const adminWelcome = [
-        {
-          name: 'Oanitia Drama Arena 5101',
-          message: '🎭 Selamat datang di grup resmi Pentas Seni 2026! Di sini kamu bisa sharing info, tanya-tanya, dan dukung para penampil!',
-        },
-        {
-          name: 'Oanitia Drama Arena 5101',
-          message: '📍 Lokasi acara: <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" class="welcome-link">Lihat di Google Maps</a>',
-        },
-        {
-          name: 'Oanitia Drama Arena 5101',
-          message: '🖼️ Poster acara bisa dilihat di Info Grup (klik nama grup di atas). Ada drama, paduan suara, tari, band, dll!',
-        },
-        {
-          name: 'Oanitia Drama Arena 5101',
-          message: '📚 Guide Book: <a href="assets/guide-book.pdf" target="_blank" class="welcome-link">Download di sini</a>',
-        },
-        {
-          name: 'Oanitia Drama Arena 5101',
-          message: 'Yuk saling kenalan, share pengalaman, dan ramaikan chat ini! 🎉',
-        },
-      ];
-      for (const msg of adminWelcome) {
-        await window._push(window._ref, {
-          name: msg.name,
-          message: msg.message,
-          timestamp: Date.now(),
-          isAdmin: true
-        });
-        await new Promise(r => setTimeout(r, 400));
-      }
-    }
-  } catch (e) { /* silent */ }
 }
 
 /* ============================

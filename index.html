@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Darama Arena 5101 – Grup WhatsApp</title>
+  <title id="pageTitle">Darama Arena 5101 – Grup WhatsApp</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,9 +14,9 @@
 <!-- ===================== NAME MODAL ===================== -->
 <div id="nameModal" class="modal-overlay">
   <div class="modal-card">
-    <div class="modal-logo">🔥</div>
+    <div class="modal-logo" id="welcomeLogo">🔥</div>
     <h2>Selamat Datang!</h2>
-    <p>Masukkan nama kamu untuk bergabung ke grup <strong>Darama Arena 5101</strong></p>
+    <p>Masukkan nama kamu untuk bergabung ke grup <strong id="welcomeGroupName">Darama Arena 5101</strong></p>
     <input type="text" id="nameInput" placeholder="Nama kamu..." maxlength="30" autocomplete="off" />
     <button id="joinBtn" onclick="joinChat()">Gabung Sekarang 🎉</button>
   </div>
@@ -26,12 +26,12 @@
 <div id="callModal" class="modal-overlay hidden">
   <div class="call-screen">
     <div class="call-avatar-wrap">
-      <div class="call-avatar">🔥</div>
+      <div class="call-avatar" id="callAvatar">🔥</div>
       <div class="call-ripple r1"></div>
       <div class="call-ripple r2"></div>
       <div class="call-ripple r3"></div>
     </div>
-    <div class="call-name">Darama Arena 5101</div>
+    <div class="call-name" id="callGroupName">Darama Arena 5101</div>
     <div class="call-status" id="callStatus">Memanggil...</div>
     <div class="call-actions">
       <button class="call-btn mute-btn" title="Mute">🔇</button>
@@ -53,7 +53,7 @@
         <div class="video-top-bar">
           <div class="video-caller-info">
             <div class="video-caller-dot"></div>
-            <span>Darama Arena 5101 • Live</span>
+            <span id="videoCallerName">Darama Arena 5101 • Live</span>
           </div>
           <button class="video-close-btn" onclick="endVideoCall()">✕</button>
         </div>
@@ -80,11 +80,11 @@
   <div class="info-body">
     <div class="info-banner">
       <div class="group-profile-pic" onclick="changeProfilePic()">
-        <span class="profile-pic-emoji">🔥</span>
+        <span class="profile-pic-emoji" id="infoAvatar">🔥</span>
         <div class="profile-pic-edit">✏️</div>
       </div>
     </div>
-    <h2 class="info-title">Darama Arena 5101</h2>
+    <h2 class="info-title" id="infoGroupName">Darama Arena 5101</h2>
     <p class="info-subtitle">Dibuat 1 Jan 2026 • Hanya admin yang bisa edit info grup</p>
 
     <div class="info-section">
@@ -154,9 +154,9 @@
   <div class="wa-header">
     <button class="header-back-btn" title="Kembali">←</button>
     <div class="header-group-info" onclick="openInfo()">
-      <div class="header-avatar">🔥</div>
+      <div class="header-avatar" id="mainAvatar">🔥</div>
       <div class="header-text">
-        <div class="header-name">Darama Arena 5101</div>
+        <div class="header-name" id="mainGroupName">Darama Arena 5101</div>
         <div class="header-sub" id="onlineCount">Memuat...</div>
       </div>
     </div>
@@ -189,56 +189,7 @@
 
   <!-- CHAT AREA -->
   <div class="wa-chat" id="chatArea">
-    <!-- ======= STATIC ADMIN CHAT ======= -->
-    <div class="bubble-wrap in admin-static">
-      <div class="bubble-name" style="color:#E91E63;font-weight:800;">Panitia Drama Arena 5101</div>
-      <div class="bubble">
-        Selamat datang di grup resmi Darama Arena 5101! Di sini kamu bisa sharing info, tanya-tanya, dan dukung para penampil! 🔥
-        <div class="bubble-meta"><span class="bubble-time">08.00</span></div>
-      </div>
-    </div>
-    <div class="bubble-wrap in admin-static">
-      <div class="bubble-name" style="color:#E91E63;font-weight:800;">Panitia Drama Arena 5101</div>
-      <div class="bubble">
-        📍 Lokasi acara: <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" class="welcome-link">Lihat di Google Maps</a>
-        <div class="bubble-meta"><span class="bubble-time">08.01</span></div>
-      </div>
-    </div>
-    <div class="bubble-wrap in admin-static">
-      <div class="bubble-name" style="color:#E91E63;font-weight:800;">Panitia Drama Arena 5101</div>
-      <div class="bubble">
-        🖼️ Berikut poster-poster acara Darama Arena 5101:
-        <div class="bubble-images">
-          <img src="assets/poster-acara-1.jpg" alt="Poster Drama" class="chat-poster-img" onclick="previewImage(this)">
-          <img src="assets/poster-acara-2.jpg" alt="Poster Paduan Suara" class="chat-poster-img" onclick="previewImage(this)">
-          <img src="assets/poster-acara-3.jpg" alt="Poster Tari" class="chat-poster-img" onclick="previewImage(this)">
-          <img src="assets/poster-acara-4.jpg" alt="Poster Band" class="chat-poster-img" onclick="previewImage(this)">
-        </div>
-        <div class="bubble-meta"><span class="bubble-time">08.01</span></div>
-      </div>
-    </div>
-    <div class="bubble-wrap in admin-static">
-      <div class="bubble-name" style="color:#2196F3;font-weight:700;">Andi</div>
-      <div class="bubble">
-        Min, ada link guide booknya gk? Biar kita bisa prepare sebelum hari H 🎯
-        <div class="bubble-meta"><span class="bubble-time">08.02</span></div>
-      </div>
-    </div>
-    <div class="bubble-wrap in admin-static">
-      <div class="bubble-name" style="color:#E91E63;font-weight:800;">Panitia Drama Arena 5101</div>
-      <div class="bubble">
-        📚 Guide Book: <a href="assets/guide-book.pdf" target="_blank" class="welcome-link">Download di sini</a>
-        <div class="bubble-meta"><span class="bubble-time">08.02</span></div>
-      </div>
-    </div>
-    <div class="bubble-wrap in admin-static">
-      <div class="bubble-name" style="color:#E91E63;font-weight:800;">Panitia Drama Arena 5101</div>
-      <div class="bubble">
-        Yuk saling kenalan, share pengalaman, dan ramaikan chat ini! 🎉
-        <div class="bubble-meta"><span class="bubble-time">08.03</span></div>
-      </div>
-    </div>
-    <!-- ======= END STATIC ADMIN CHAT ======= -->
+    <!-- Static chat will be generated by script.js config -->
     <div class="chat-loader" id="chatLoader">
       <div class="loader-spinner"></div>
       <p>Memuat pesan...</p>
