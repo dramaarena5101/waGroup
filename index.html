@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pentas Seni 2026 – Grup WhatsApp</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ===================== NAME MODAL ===================== -->
+<div id="nameModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-logo">🎭</div>
+    <h2>Selamat Datang!</h2>
+    <p>Masukkan nama kamu untuk bergabung ke grup <strong>Pentas Seni 2026</strong></p>
+    <input type="text" id="nameInput" placeholder="Nama kamu..." maxlength="30" autocomplete="off" />
+    <button id="joinBtn" onclick="joinChat()">Gabung Sekarang 🎉</button>
+  </div>
+</div>
+
+<!-- ===================== CALL MODAL ===================== -->
+<div id="callModal" class="modal-overlay hidden">
+  <div class="call-screen">
+    <div class="call-avatar-wrap">
+      <div class="call-avatar">🎭</div>
+      <div class="call-ripple r1"></div>
+      <div class="call-ripple r2"></div>
+      <div class="call-ripple r3"></div>
+    </div>
+    <div class="call-name">Pentas Seni 2026</div>
+    <div class="call-status" id="callStatus">Memanggil...</div>
+    <div class="call-actions">
+      <button class="call-btn mute-btn" title="Mute">🔇</button>
+      <button class="call-btn end-btn" onclick="endCall()">📵</button>
+      <button class="call-btn speaker-btn" title="Speaker">🔊</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== VIDEO CALL MODAL ===================== -->
+<div id="videoModal" class="modal-overlay hidden">
+  <div class="video-screen">
+    <div class="video-main">
+      <video id="videoPlayer" autoplay loop muted playsinline
+        src="https://www.w3schools.com/html/mov_bbb.mp4"
+        poster="https://via.placeholder.com/720x1280/1a1a2e/ffffff?text=🎭">
+      </video>
+      <div class="video-overlay-ui">
+        <div class="video-top-bar">
+          <div class="video-caller-info">
+            <div class="video-caller-dot"></div>
+            <span>Pentas Seni 2026 • Live</span>
+          </div>
+          <button class="video-close-btn" onclick="endVideoCall()">✕</button>
+        </div>
+        <div class="video-self-preview">
+          <div class="video-self-placeholder">📷<br/><small>Kamera kamu</small></div>
+        </div>
+        <div class="video-bottom-bar">
+          <button class="vid-btn" title="Mic">🎙️</button>
+          <button class="vid-btn vid-end" onclick="endVideoCall()">📵</button>
+          <button class="vid-btn" title="Kamera">📹</button>
+          <button class="vid-btn" title="Balik Kamera">🔄</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== INFO PANEL ===================== -->
+<div id="infoPanel" class="info-panel hidden">
+  <div class="info-header">
+    <button onclick="closeInfo()" class="info-back">←</button>
+    <span>Info Grup</span>
+  </div>
+  <div class="info-body">
+    <div class="info-banner">
+      <div class="group-profile-pic" onclick="changeProfilePic()">
+        <span class="profile-pic-emoji">🎭</span>
+        <div class="profile-pic-edit">✏️</div>
+      </div>
+    </div>
+    <h2 class="info-title">Pentas Seni 2026</h2>
+    <p class="info-subtitle">Dibuat 1 Jan 2026 • Hanya admin yang bisa edit info grup</p>
+
+    <div class="info-section">
+      <div class="info-section-title">📋 Deskripsi Grup</div>
+      <div class="info-description-scroll">
+        <p>Selamat datang di grup resmi Pentas Seni 2026! Di sini kamu bisa mengirim ucapan, berbagi momen, dan menyaksikan keseruan acara bersama. Mari saling mendukung para penampil! 🎉</p>
+        <div class="event-images">
+          <div class="event-img-item" onclick="openImage('assets/poster-acara-1.jpg')">
+            <div class="event-img-placeholder">🎬</div>
+            <span>Drama</span>
+          </div>
+          <div class="event-img-item" onclick="openImage('assets/poster-acara-2.jpg')">
+            <div class="event-img-placeholder">🎤</div>
+            <span>Paduan Suara</span>
+          </div>
+          <div class="event-img-item" onclick="openImage('assets/poster-acara-3.jpg')">
+            <div class="event-img-placeholder">💃</div>
+            <span>Tari</span>
+          </div>
+          <div class="event-img-item" onclick="openImage('assets/poster-acara-4.jpg')">
+            <div class="event-img-placeholder">🎸</div>
+            <span>Band</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-section-title">📅 Jadwal Acara</div>
+      <div class="rundown-list">
+        <div class="rundown-item"><span class="rundown-time">07.00</span><span>Registrasi & Pembukaan</span></div>
+        <div class="rundown-item"><span class="rundown-time">08.00</span><span>Sambutan Panitia & Doa</span></div>
+        <div class="rundown-item"><span class="rundown-time">09.00</span><span>Penampilan Paduan Suara</span></div>
+        <div class="rundown-item"><span class="rundown-time">10.00</span><span>Drama & Teater Kolosal</span></div>
+        <div class="rundown-item"><span class="rundown-time">11.30</span><span>Istirahat & Makan Siang</span></div>
+        <div class="rundown-item"><span class="rundown-time">13.00</span><span>Tari Tradisional & Modern</span></div>
+        <div class="rundown-item"><span class="rundown-time">14.30</span><span>Band & Akustik</span></div>
+        <div class="rundown-item"><span class="rundown-time">16.00</span><span>Pembagian Hadiah & Penutup</span></div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-section-title">📍 Lokasi</div>
+      <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" class="location-link">
+        <span class="location-icon">📍</span>
+        <span>Lihat Lokasi di Maps →</span>
+      </a>
+      <p>Gedung Aula Utama<br/>Pondok Modern Darussalam Gontor<br/>Ponorogo, Jawa Timur</p>
+    </div>
+
+    <div class="info-section">
+      <div class="info-section-title">📌 Peraturan Grup</div>
+      <ul class="rules-list">
+        <li>Sopan dan saling menghormati</li>
+        <li>Dilarang spam / SARA</li>
+        <li>Kirim ucapan positif!</li>
+        <li>Nikmati acaranya 🎊</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MAIN APP ===================== -->
+<div id="app" class="wa-app">
+
+  <!-- HEADER -->
+  <div class="wa-header">
+    <button class="header-back-btn" title="Kembali">←</button>
+    <div class="header-group-info" onclick="openInfo()">
+      <div class="header-avatar">🎭</div>
+      <div class="header-text">
+        <div class="header-name">Pentas Seni 2026</div>
+        <div class="header-sub" id="onlineCount">Memuat...</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="call-btn-wrapper">
+        <button class="header-icon-btn" title="Video Call" onclick="startVideoCall()">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+        </button>
+        <span class="notif-dot" id="videoNotif"></span>
+      </div>
+      <div class="call-btn-wrapper">
+        <button class="header-icon-btn" title="Telepon" onclick="startCall()">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+        </button>
+        <span class="notif-dot" id="callNotif"></span>
+      </div>
+      <button class="header-icon-btn" title="Opsi">⋮</button>
+    </div>
+  </div>
+
+  <!-- PINNED INFO BAR -->
+  <div class="pinned-bar" onclick="openInfo()">
+    <span class="pinned-icon">📌</span>
+    <div class="pinned-text">
+      <div class="pinned-label">Info Acara</div>
+      <div class="pinned-sub">Tap untuk lihat jadwal & lokasi</div>
+    </div>
+    <span class="pinned-arrow">›</span>
+  </div>
+
+  <!-- CHAT AREA -->
+  <div class="wa-chat" id="chatArea">
+    <!-- ======= STATIC ADMIN CHAT ======= -->
+    <div class="bubble-wrap in admin-static">
+      <div class="bubble-name" style="color:#E91E63;font-weight:800;">Panitia Drama Arena 5101</div>
+      <div class="bubble">
+        Selamat datang di grup resmi Pentas Seni 2026! Di sini kamu bisa sharing info, tanya-tanya, dan dukung para penampil! 🎭
+        <div class="bubble-meta"><span class="bubble-time">08.00</span></div>
+      </div>
+    </div>
+    <div class="bubble-wrap in admin-static">
+      <div class="bubble-name" style="color:#E91E63;font-weight:800;">Panitia Drama Arena 5101</div>
+      <div class="bubble">
+        📍 Lokasi acara: <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" class="welcome-link">Lihat di Google Maps</a>
+        <div class="bubble-meta"><span class="bubble-time">08.01</span></div>
+      </div>
+    </div>
+    <div class="bubble-wrap in admin-static">
+      <div class="bubble-name" style="color:#E91E63;font-weight:800;">Panitia Drama Arena 5101</div>
+      <div class="bubble">
+        🖼️ Berikut poster-poster acara Pentas Seni 2026:
+        <div class="bubble-images">
+          <img src="assets/poster-acara-1.jpg" alt="Poster Drama" class="chat-poster-img" onclick="previewImage(this)">
+          <img src="assets/poster-acara-2.jpg" alt="Poster Paduan Suara" class="chat-poster-img" onclick="previewImage(this)">
+          <img src="assets/poster-acara-3.jpg" alt="Poster Tari" class="chat-poster-img" onclick="previewImage(this)">
+          <img src="assets/poster-acara-4.jpg" alt="Poster Band" class="chat-poster-img" onclick="previewImage(this)">
+        </div>
+        <div class="bubble-meta"><span class="bubble-time">08.01</span></div>
+      </div>
+    </div>
+    <div class="bubble-wrap in admin-static">
+      <div class="bubble-name" style="color:#2196F3;font-weight:700;">Andi</div>
+      <div class="bubble">
+        Min, ada link guide booknya gk? Biar kita bisa prepare sebelum hari H 🎯
+        <div class="bubble-meta"><span class="bubble-time">08.02</span></div>
+      </div>
+    </div>
+    <div class="bubble-wrap in admin-static">
+      <div class="bubble-name" style="color:#E91E63;font-weight:800;">Panitia Drama Arena 5101</div>
+      <div class="bubble">
+        📚 Guide Book: <a href="assets/guide-book.pdf" target="_blank" class="welcome-link">Download di sini</a>
+        <div class="bubble-meta"><span class="bubble-time">08.02</span></div>
+      </div>
+    </div>
+    <div class="bubble-wrap in admin-static">
+      <div class="bubble-name" style="color:#E91E63;font-weight:800;">Panitia Drama Arena 5101</div>
+      <div class="bubble">
+        Yuk saling kenalan, share pengalaman, dan ramaikan chat ini! 🎉
+        <div class="bubble-meta"><span class="bubble-time">08.03</span></div>
+      </div>
+    </div>
+    <!-- ======= END STATIC ADMIN CHAT ======= -->
+    <div class="chat-loader" id="chatLoader">
+      <div class="loader-spinner"></div>
+      <p>Memuat pesan...</p>
+    </div>
+  </div>
+
+  <!-- INPUT AREA -->
+  <div class="wa-input-bar">
+    <button class="emoji-btn" title="Emoji" onclick="toggleEmojiPicker()">😊</button>
+    <div class="emoji-picker" id="emojiPicker">
+      <span onclick="insertEmoji('🎭')">🎭</span><span onclick="insertEmoji('🎉')">🎉</span>
+      <span onclick="insertEmoji('🎊')">🎊</span><span onclick="insertEmoji('👏')">👏</span>
+      <span onclick="insertEmoji('❤️')">❤️</span><span onclick="insertEmoji('🔥')">🔥</span>
+      <span onclick="insertEmoji('✨')">✨</span><span onclick="insertEmoji('🌟')">🌟</span>
+      <span onclick="insertEmoji('💪')">💪</span><span onclick="insertEmoji('😍')">😍</span>
+      <span onclick="insertEmoji('🥳')">🥳</span><span onclick="insertEmoji('👍')">👍</span>
+      <span onclick="insertEmoji('🙌')">🙌</span><span onclick="insertEmoji('💐')">💐</span>
+      <span onclick="insertEmoji('🎵')">🎵</span><span onclick="insertEmoji('🎤')">🎤</span>
+    </div>
+    <input type="text" id="msgInput" class="msg-input" placeholder="Pesan ucapan..." autocomplete="off"
+      onkeydown="if(event.key==='Enter')sendMessage()" />
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, push, onChildAdded, query, limitToLast, serverTimestamp, get }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  // ============================================================
+  //  🔥 GANTI DENGAN CONFIG FIREBASE KAMU
+  // ============================================================
+  const firebaseConfig = {
+  apiKey: "AIzaSyBvArQvfHzo6de6POo9mbiYPWVWySOX2ps",
+  authDomain: "wa-group-54909.firebaseapp.com",
+  databaseURL: "https://wa-group-54909-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "wa-group-54909",
+  storageBucket: "wa-group-54909.firebasestorage.app",
+  messagingSenderId: "45207239885",
+  appId: "1:45207239885:web:2acacf11728299eb21fd84",
+  measurementId: "G-EW58SN7X4C"
+  };
+  // ============================================================
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+  const messagesRef = ref(db, "messages");
+
+  // expose to global
+  window._db  = db;
+  window._ref = messagesRef;
+  window._push = push;
+  window._serverTimestamp = serverTimestamp;
+  window._onChildAdded = onChildAdded;
+  window._query = query;
+  window._limitToLast = limitToLast;
+  window._get = get;
+
+  window.firebaseReady = true;
+  window.dispatchEvent(new Event("firebaseReady"));
+</script>
+<script src="script.js"></script>
+</body>
+</html>

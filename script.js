@@ -1,0 +1,637 @@
+/* ================================================
+   PENTAS SENI 2026 — script.js
+   ================================================ */
+
+/* ---- STATE ---- */
+let currentUser   = null;
+let lastSendTime  = 0;
+let unreadCount   = 0;
+let lastDateLabel = '';
+let callTimer     = null;
+
+const SEND_DELAY_MS = 2000;   // anti-spam
+const MSG_LIMIT     = 100;    // pesan terakhir
+
+/* ---- ADMIN BOT ---- */
+const ADMIN_MESSAGES = [
+  "🎭 Selamat datang di grup resmi Pentas Seni 2026! Silahkan kirim ucapan dan dukungan untuk para penampil!",
+  "📌 Acara dimulai pukul 07.00 WIB. Harap hadir tepat waktu!",
+  "🔊 Mohon jaga ketertiban selama acara berlangsung. Terima kasih! 🎊",
+  "✨ Semangat untuk semua penampil! Tunjukkan yang terbaik!",
+  "💐 Selamat menikmati Pentas Seni 2026! Bersama kita rayakan karya terbaik! 🌟"
+];
+
+/* ============================
+   INIT
+   ============================ */
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('ps_username');
+  if (saved) {
+    currentUser = saved;
+    hideModal('nameModal');
+    initChat();
+  } else {
+    document.getElementById('nameInput').focus();
+    document.getElementById('nameInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') joinChat();
+    });
+  }
+
+  // Scroll-down button
+  const chat = document.getElementById('chatArea');
+  chat.addEventListener('scroll', () => {
+    const btn = document.querySelector('.scroll-down-btn');
+    const distFromBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight;
+    if (distFromBottom > 120) {
+      btn.classList.add('visible');
+    } else {
+      btn.classList.remove('visible');
+      unreadCount = 0;
+      updateScrollBadge();
+    }
+  });
+});
+
+
+// Fungsi joinChat agar tombol Gabung Sekarang bisa dipakai
+function joinChat() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) {
+    shake(document.getElementById('nameInput'));
+    return;
+  }
+  currentUser = escapeHtml(name);
+  localStorage.setItem('ps_username', currentUser);
+  hideModal('nameModal');
+  initChat();
+}
+window.joinChat = joinChat;
+
+function appendWelcomeMessage(msg) {
+  const chatArea = document.getElementById('chatArea');
+  
+  const wrap = document.createElement('div');
+  wrap.className = 'bubble-wrap in owner-msg';
+  
+  const nameEl = document.createElement('div');
+  nameEl.className = 'bubble-name owner-name';
+  nameEl.style.color = '#E91E63';
+  nameEl.textContent = msg.name;
+  wrap.appendChild(nameEl);
+  
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble owner-bubble';
+  bubble.innerHTML = `
+    ${msg.message}
+    <div class="bubble-meta">
+      <span class="bubble-time">${formatTime(new Date())}</span>
+    </div>
+  `;
+  wrap.appendChild(bubble);
+  chatArea.appendChild(wrap);
+}
+
+/* ============================
+   IMAGE VIEWER MODAL
+   ============================ */
+function openImage(src) {
+  // Create image viewer modal
+  let viewer = document.getElementById('imageViewer');
+  if (!viewer) {
+    viewer = document.createElement('div');
+    viewer.id = 'imageViewer';
+    viewer.className = 'modal-overlay';
+    viewer.innerHTML = `
+      <div class="image-viewer-content">
+        <button class="image-viewer-close" onclick="closeImageViewer()">✕</button>
+        <img id="viewerImage" src="" alt="Gambar" />
+      </div>
+    `;
+    document.body.appendChild(viewer);
+    
+    // Close when clicking outside
+    viewer.addEventListener('click', (e) => {
+      if (e.target === viewer) closeImageViewer();
+    });
+  }
+  
+  document.getElementById('viewerImage').src = src;
+  viewer.classList.remove('hidden');
+}
+
+function closeImageViewer() {
+  document.getElementById('imageViewer').classList.add('hidden');
+}
+
+/* ============================
+   CHANGE PROFILE PIC
+   ============================ */
+function changeProfilePic() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        // Simpan ke localStorage (untuk demo)
+        localStorage.setItem('group_profile_pic', ev.target.result);
+        // Update tampilan
+        const profilePic = document.querySelector('.group-profile-pic');
+        profilePic.style.backgroundImage = `url(${ev.target.result})`;
+        profilePic.innerHTML = '<div class="profile-pic-edit">✏️</div>';
+        showToast('✅ Foto profil grup diganti!');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  input.click();
+}
+
+/* ============================
+   FIREBASE INIT
+   ============================ */
+function initChat() {
+  // Add scroll button to DOM
+  const chatArea = document.getElementById('chatArea');
+  const scrollBtn = document.createElement('button');
+  scrollBtn.className = 'scroll-down-btn';
+  scrollBtn.innerHTML = '↓';
+  scrollBtn.onclick = scrollToBottom;
+  chatArea.parentElement.insertBefore(scrollBtn, chatArea.nextSibling);
+  chatArea.parentElement.style.position = 'relative';
+
+  if (window.firebaseReady) {
+    startListening();
+  } else {
+    window.addEventListener('firebaseReady', startListening);
+  }
+}
+
+function startListening() {
+  const loader = document.getElementById('chatLoader');
+  const q = window._query(window._ref, window._limitToLast(MSG_LIMIT));
+
+  // Check if bot message needed
+  checkAndSendBotWelcome();
+
+  window._onChildAdded(q, (snapshot) => {
+    if (loader) loader.remove();
+
+    const msg = snapshot.val();
+    const isOwn = msg.name === currentUser;
+    appendBubble(msg, isOwn);
+
+    const chat = document.getElementById('chatArea');
+    const distFromBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight;
+    if (distFromBottom < 120 || isOwn) {
+      scrollToBottom();
+    } else {
+      unreadCount++;
+      updateScrollBadge();
+    }
+  });
+
+  // Show online count (simulated)
+  simulateOnlineCount();
+}
+
+/* ============================
+   SEND MESSAGE
+   ============================ */
+function sendMessage() {
+  if (!currentUser) return;
+
+  const input = document.getElementById('msgInput');
+  const text  = input.value.trim();
+  if (!text) { shake(input); return; }
+
+  const now = Date.now();
+  if (now - lastSendTime < SEND_DELAY_MS) {
+    showToast(`⏳ Tunggu ${Math.ceil((SEND_DELAY_MS - (now - lastSendTime)) / 1000)}s sebelum kirim lagi`);
+    return;
+  }
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+
+  window._push(window._ref, {
+    name:      currentUser,
+    message:   escapeHtml(text),
+    timestamp: Date.now(),
+    isAdmin:   false
+  }).then(() => {
+    input.value = '';
+    lastSendTime = Date.now();
+    closeEmojiPicker();
+  }).catch(err => {
+    showToast('❌ Gagal kirim. Coba lagi.');
+    console.error(err);
+  }).finally(() => {
+    setTimeout(() => { btn.disabled = false; }, SEND_DELAY_MS);
+  });
+}
+
+/* ============================
+   APPEND BUBBLE
+   ============================ */
+function appendBubble(msg, isOwn) {
+  const chatArea = document.getElementById('chatArea');
+  const loader   = document.getElementById('chatLoader');
+  if (loader) loader.remove();
+
+  const msgDate  = new Date(msg.timestamp);
+  const dateLabel = formatDate(msgDate);
+
+  if (dateLabel !== lastDateLabel) {
+    lastDateLabel = dateLabel;
+    const divider = document.createElement('div');
+    divider.className = 'date-divider';
+    divider.innerHTML = `<span>${dateLabel}</span>`;
+    chatArea.appendChild(divider);
+  }
+
+  // System / admin message
+  if (msg.isAdmin) {
+    const sys = document.createElement('div');
+    sys.className = 'bubble-system';
+    sys.innerHTML = `<span>🤖 <strong>Admin Bot</strong></span><br>${msg.message}`;
+    chatArea.appendChild(sys);
+    return;
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = `bubble-wrap ${isOwn ? 'out' : 'in'} ${msg.highlight ? 'highlight' : ''}`;
+  wrap.dataset.msgId = msg.id || '';
+  wrap.dataset.msgText = msg.message;
+
+  const timeStr = formatTime(msgDate);
+
+  if (!isOwn) {
+    const nameEl = document.createElement('div');
+    nameEl.className = 'bubble-name';
+    nameEl.style.color = hashColor(msg.name);
+    nameEl.textContent = msg.name;
+    wrap.appendChild(nameEl);
+  }
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = `
+    ${msg.message}
+    <div class="bubble-meta">
+      <span class="bubble-time">${timeStr}</span>
+      ${isOwn ? '<span class="bubble-tick">✓✓</span>' : ''}
+    </div>
+  `;
+
+  // Tambahkan dropdown reply untuk semua pesan (bukan admin static)
+  if (!wrap.classList.contains('admin-static')) {
+    const dropdown = document.createElement('div');
+    dropdown.className = 'bubble-dropdown';
+    dropdown.innerHTML = `
+      <button class="bubble-dropdown-btn" onclick="toggleBubbleDropdown(this)">⋮</button>
+      <div class="bubble-dropdown-list">
+        <button onclick="replyToMessageDropdown(this)">Reply</button>
+      </div>
+    `;
+    bubble.appendChild(dropdown);
+  }
+
+  wrap.appendChild(bubble);
+  chatArea.appendChild(wrap);
+}
+
+// Dropdown reply logic
+window.toggleBubbleDropdown = function(btn) {
+  const list = btn.nextElementSibling;
+  document.querySelectorAll('.bubble-dropdown-list.show').forEach(el => {
+    if (el !== list) el.classList.remove('show');
+  });
+  list.classList.toggle('show');
+  // Close on click outside
+  setTimeout(() => {
+    function close(e) {
+      if (!list.contains(e.target) && e.target !== btn) {
+        list.classList.remove('show');
+        document.removeEventListener('mousedown', close);
+      }
+    }
+    document.addEventListener('mousedown', close);
+  }, 10);
+};
+
+window.replyToMessageDropdown = function(btn) {
+  const bubbleWrap = btn.closest('.bubble-wrap');
+  const senderName = bubbleWrap.querySelector('.bubble-name')?.textContent || 'Someone';
+  const messageText = bubbleWrap.dataset.msgText || bubbleWrap.querySelector('.bubble').innerText.split('\n')[0];
+  const input = document.getElementById('msgInput');
+  input.value = `Reply to ${senderName}: ${messageText}`;
+  input.focus();
+  btn.closest('.bubble-dropdown-list').classList.remove('show');
+  showToast('Reply mode');
+}
+
+/* ============================
+   MESSAGE ACTIONS (Reply/Edit)
+   ============================ */
+function replyToMessage(btn) {
+  const bubbleWrap = btn.closest('.bubble-wrap');
+  const senderName = bubbleWrap.querySelector('.bubble-name')?.textContent || 'Someone';
+  const messageText = bubbleWrap.dataset.msgText || '';
+  
+  const input = document.getElementById('msgInput');
+  input.value = `↩️ Replying to ${senderName}: ${messageText}`;
+  input.focus();
+  showToast('Membalas pesan...');
+}
+
+function editMessage(btn) {
+  const bubbleWrap = btn.closest('.bubble-wrap');
+  const messageText = bubbleWrap.dataset.msgText || '';
+  
+  const input = document.getElementById('msgInput');
+  input.value = messageText;
+  input.focus();
+  showToast('Edit pesan...');
+}
+
+/* ============================
+   ADMIN BOT
+   ============================ */
+async function checkAndSendBotWelcome() {
+  try {
+    const q = window._query(window._ref, window._limitToLast(5));
+    const snap = await window._get(q);
+    if (!snap.exists()) {
+      // No messages at all — kirim pesan admin friendly, link, poster, dsb
+      const adminWelcome = [
+        {
+          name: 'Oanitia Drama Arena 5101',
+          message: '🎭 Selamat datang di grup resmi Pentas Seni 2026! Di sini kamu bisa sharing info, tanya-tanya, dan dukung para penampil!',
+        },
+        {
+          name: 'Oanitia Drama Arena 5101',
+          message: '📍 Lokasi acara: <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" class="welcome-link">Lihat di Google Maps</a>',
+        },
+        {
+          name: 'Oanitia Drama Arena 5101',
+          message: '🖼️ Poster acara bisa dilihat di Info Grup (klik nama grup di atas). Ada drama, paduan suara, tari, band, dll!',
+        },
+        {
+          name: 'Oanitia Drama Arena 5101',
+          message: '📚 Guide Book: <a href="assets/guide-book.pdf" target="_blank" class="welcome-link">Download di sini</a>',
+        },
+        {
+          name: 'Oanitia Drama Arena 5101',
+          message: 'Yuk saling kenalan, share pengalaman, dan ramaikan chat ini! 🎉',
+        },
+      ];
+      for (const msg of adminWelcome) {
+        await window._push(window._ref, {
+          name: msg.name,
+          message: msg.message,
+          timestamp: Date.now(),
+          isAdmin: true
+        });
+        await new Promise(r => setTimeout(r, 400));
+      }
+    }
+  } catch (e) { /* silent */ }
+}
+
+/* ============================
+   CALL FEATURES
+   ============================ */
+function startCall() {
+  document.getElementById('callModal').classList.remove('hidden');
+  document.getElementById('callStatus').textContent = 'Memanggil...';
+
+  // simulate ringing → connected
+  clearTimeout(callTimer);
+  callTimer = setTimeout(() => {
+    document.getElementById('callStatus').textContent = 'Terhubung ✓';
+    document.getElementById('callStatus').style.color = '#25D366';
+  }, 3000);
+
+  // optional: play ringtone via Web Audio beep
+  playBeep();
+}
+
+function endCall() {
+  clearTimeout(callTimer);
+  document.getElementById('callModal').classList.add('hidden');
+  document.getElementById('callStatus').style.color = '';
+  stopBeep();
+  showToast('📵 Panggilan diakhiri');
+}
+
+function startVideoCall() {
+  document.getElementById('videoModal').classList.remove('hidden');
+  const vid = document.getElementById('videoPlayer');
+  vid.play().catch(() => {});
+}
+
+function endVideoCall() {
+  document.getElementById('videoModal').classList.add('hidden');
+  document.getElementById('videoPlayer').pause();
+  showToast('📵 Video call diakhiri');
+}
+
+/* ============================
+   WEB AUDIO BEEP (fake ringtone)
+   ============================ */
+let audioCtx = null;
+let beepInterval = null;
+
+function playBeep() {
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let count = 0;
+    beepInterval = setInterval(() => {
+      if (count++ > 10) { clearInterval(beepInterval); return; }
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.value = 420;
+      gain.gain.setValueAtTime(.25, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .4);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + .4);
+    }, 700);
+  } catch(e) {}
+}
+
+function stopBeep() {
+  clearInterval(beepInterval);
+  if (audioCtx) { audioCtx.close(); audioCtx = null; }
+}
+
+/* ============================
+   INFO PANEL
+   ============================ */
+function openInfo() {
+  const panel = document.getElementById('infoPanel');
+  panel.classList.remove('hidden');
+  // Force reflow then animate
+  requestAnimationFrame(() => panel.classList.add('open'));
+}
+
+function closeInfo() {
+  const panel = document.getElementById('infoPanel');
+  panel.classList.remove('open');
+  setTimeout(() => panel.classList.add('hidden'), 280);
+}
+
+/* ============================
+   EMOJI PICKER
+   ============================ */
+function toggleEmojiPicker() {
+  const picker = document.getElementById('emojiPicker');
+  picker.classList.toggle('open');
+}
+
+function closeEmojiPicker() {
+  document.getElementById('emojiPicker').classList.remove('open');
+}
+
+function insertEmoji(emoji) {
+  const input = document.getElementById('msgInput');
+  input.value += emoji;
+  input.focus();
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.emoji-btn') && !e.target.closest('.emoji-picker')) {
+    closeEmojiPicker();
+  }
+});
+
+/* ============================
+   HELPERS
+   ============================ */
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function formatTime(date) {
+  return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatDate(date) {
+  const today     = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  if (sameDay(date, today))     return 'Hari ini';
+  if (sameDay(date, yesterday)) return 'Kemarin';
+  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function sameDay(a, b) {
+  return a.getFullYear()===b.getFullYear() &&
+         a.getMonth()===b.getMonth() &&
+         a.getDate()===b.getDate();
+}
+
+/* Generate consistent color from name string */
+const NAME_COLORS = [
+  '#E91E63','#9C27B0','#3F51B5','#00BCD4',
+  '#009688','#FF5722','#795548','#607D8B',
+  '#F44336','#FF9800','#CDDC39','#4CAF50'
+];
+function hashColor(name) {
+  let h = 0;
+  for (let i=0; i<name.length; i++) h = name.charCodeAt(i) + ((h<<5)-h);
+  return NAME_COLORS[Math.abs(h) % NAME_COLORS.length];
+}
+
+function scrollToBottom() {
+  const chat = document.getElementById('chatArea');
+  chat.scrollTop = chat.scrollHeight;
+  unreadCount = 0;
+  updateScrollBadge();
+}
+
+function updateScrollBadge() {
+  const btn = document.querySelector('.scroll-down-btn');
+  if (!btn) return;
+  let badge = btn.querySelector('.unread-badge');
+  if (unreadCount > 0) {
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.className = 'unread-badge';
+      btn.appendChild(badge);
+    }
+    badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+  } else {
+    if (badge) badge.remove();
+  }
+}
+
+function hideModal(id) {
+  document.getElementById(id).classList.add('hidden');
+}
+
+function showToast(msg) {
+  let toast = document.querySelector('.toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+function shake(el) {
+  el.style.animation = 'none';
+  el.offsetHeight; // reflow
+  el.style.animation = 'shake .3s ease';
+  const style = document.createElement('style');
+  style.textContent = `@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}`;
+  document.head.appendChild(style);
+  setTimeout(() => el.style.animation = '', 300);
+}
+
+/* Simulated online member count */
+function simulateOnlineCount() {
+  const el = document.getElementById('onlineCount');
+  const update = () => {
+    const base = 24;
+    const rand = Math.floor(Math.random() * 15);
+    el.textContent = `${base + rand} anggota • ${Math.floor(Math.random()*8)+3} online`;
+  };
+  update();
+  setInterval(update, 8000);
+}
+
+/* ============================
+   CALL NOTIFICATIONS
+   ============================ */
+function showCallNotification(type) {
+  const notifId = type === 'video' ? 'videoNotif' : 'callNotif';
+  const notif = document.getElementById(notifId);
+  if (notif) {
+    notif.classList.add('active');
+    // Auto hide setelah 5 detik
+    setTimeout(() => {
+      notif.classList.remove('active');
+    }, 5000);
+  }
+}
+
+// Tampilkan notifikasi saat ada pesan baru (simulasi)
+function simulateIncomingCall() {
+  // Notifikasi akan muncul secara acak untuk simulasi
+  // Bisa diaktifkan jika needed
+}
