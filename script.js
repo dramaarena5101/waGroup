@@ -360,46 +360,46 @@ function editMessage(btn) {
 /* ============================
    ADMIN BOT
    ============================ */
-async function checkAndSendBotWelcome() {
-  try {
-    const q = window._query(window._ref, window._limitToLast(5));
-    const snap = await window._get(q);
-    if (!snap.exists()) {
-      // No messages at all — kirim pesan admin friendly, link, poster, dsb
-      const adminWelcome = [
-        {
-          name: 'Oanitia Drama Arena 5101',
-          message: '🎭 Selamat datang di grup resmi Pentas Seni 2026! Di sini kamu bisa sharing info, tanya-tanya, dan dukung para penampil!',
-        },
-        {
-          name: 'Oanitia Drama Arena 5101',
-          message: '📍 Lokasi acara: <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" class="welcome-link">Lihat di Google Maps</a>',
-        },
-        {
-          name: 'Oanitia Drama Arena 5101',
-          message: '🖼️ Poster acara bisa dilihat di Info Grup (klik nama grup di atas). Ada drama, paduan suara, tari, band, dll!',
-        },
-        {
-          name: 'Oanitia Drama Arena 5101',
-          message: '📚 Guide Book: <a href="assets/guide-book.pdf" target="_blank" class="welcome-link">Download di sini</a>',
-        },
-        {
-          name: 'Oanitia Drama Arena 5101',
-          message: 'Yuk saling kenalan, share pengalaman, dan ramaikan chat ini! 🎉',
-        },
-      ];
-      for (const msg of adminWelcome) {
-        await window._push(window._ref, {
-          name: msg.name,
-          message: msg.message,
-          timestamp: Date.now(),
-          isAdmin: true
-        });
-        await new Promise(r => setTimeout(r, 400));
-      }
-    }
-  } catch (e) { /* silent */ }
-}
+// async function checkAndSendBotWelcome() {
+//   try {
+//     const q = window._query(window._ref, window._limitToLast(5));
+//     const snap = await window._get(q);
+//     if (!snap.exists()) {
+//       // No messages at all — kirim pesan admin friendly, link, poster, dsb
+//       const adminWelcome = [
+//         {
+//           name: 'Oanitia Drama Arena 5101',
+//           message: '🎭 Selamat datang di grup resmi Pentas Seni 2026! Di sini kamu bisa sharing info, tanya-tanya, dan dukung para penampil!',
+//         },
+//         {
+//           name: 'Oanitia Drama Arena 5101',
+//           message: '📍 Lokasi acara: <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" class="welcome-link">Lihat di Google Maps</a>',
+//         },
+//         {
+//           name: 'Oanitia Drama Arena 5101',
+//           message: '🖼️ Poster acara bisa dilihat di Info Grup (klik nama grup di atas). Ada drama, paduan suara, tari, band, dll!',
+//         },
+//         {
+//           name: 'Oanitia Drama Arena 5101',
+//           message: '📚 Guide Book: <a href="assets/guide-book.pdf" target="_blank" class="welcome-link">Download di sini</a>',
+//         },
+//         {
+//           name: 'Oanitia Drama Arena 5101',
+//           message: 'Yuk saling kenalan, share pengalaman, dan ramaikan chat ini! 🎉',
+//         },
+//       ];
+//       for (const msg of adminWelcome) {
+//         await window._push(window._ref, {
+//           name: msg.name,
+//           message: msg.message,
+//           timestamp: Date.now(),
+//           isAdmin: true
+//         });
+//         await new Promise(r => setTimeout(r, 400));
+//       }
+//     }
+//   } catch (e) { /* silent */ }
+// }
 
 /* ============================
    CALL FEATURES
