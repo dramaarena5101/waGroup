@@ -16,7 +16,8 @@ const MSG_LIMIT     = 100;    // pesan terakhir
 /* ---- CONFIGURATION ---- */
 const APP_CONFIG = {
   groupName: "Drama Arena 5101",
-  groupAvatar: "🔥", // Emoji atau URL gambar
+  groupAvatar: "assets/poster-acara-1.jpg", // Menggunakan poster sebagai avatar default
+  groupBanner: "assets/poster-acara-1.jpg", // Background untuk bagian atas Info Grup
   pageTitle: "Drama Arena 5101 – Grup WhatsApp",
   
   // -- PENGATURAN INFO GRUP --
@@ -97,6 +98,14 @@ function applyAppConfig() {
   document.documentElement.style.setProperty('--wa-bg', APP_CONFIG.theme.chatBackgroundColor);
   document.documentElement.style.setProperty('--wa-header', APP_CONFIG.theme.headerColor);
   document.documentElement.style.setProperty('--wa-bubble-out', APP_CONFIG.theme.bubbleOutColor);
+
+  // Set Info Banner
+  const bannerEl = document.querySelector('.info-banner');
+  if (bannerEl && APP_CONFIG.groupBanner) {
+    bannerEl.style.backgroundImage = `url('${APP_CONFIG.groupBanner}')`;
+    bannerEl.style.backgroundSize = 'cover';
+    bannerEl.style.backgroundPosition = 'center';
+  }
 
   // Set Info Panel Content
   const descEl = document.getElementById('configGroupDescription');
@@ -496,8 +505,101 @@ window.toggleBubbleDropdown = function(btn) {
   }, 10);
 };
 
-window.replyToMessageDropdown = function(btn) {
-  const bubbleWrap = btn.closest('.bubble-wrap');
+/* ============================
+   SWIPE TO REPLY LOGIC
+   ============================ */
+let swipeStartX = 0;
+let swipeCurrentX = 0;
+let isSwiping = false;
+let swipedBubble = null;
+let replyIndicator = null;
+
+function handleDragStart(e, clientX) {
+  const bubble = e.target.closest('.bubble-wrap');
+  if (!bubble) return;
+  if (e.target.tagName === 'IMG' || e.target.tagName === 'BUTTON') return;
+
+  swipedBubble = bubble;
+  swipeStartX = clientX;
+  swipeCurrentX = clientX;
+  isSwiping = true;
+  swipedBubble.style.transition = 'none';
+  
+  replyIndicator = document.createElement('div');
+  replyIndicator.innerHTML = '↩️';
+  replyIndicator.style.position = 'absolute';
+  replyIndicator.style.left = '-30px';
+  replyIndicator.style.top = '50%';
+  replyIndicator.style.transform = 'translateY(-50%) scale(0)';
+  replyIndicator.style.transition = 'transform 0.1s, opacity 0.1s';
+  replyIndicator.style.opacity = '0';
+  replyIndicator.style.background = 'rgba(255,255,255,0.9)';
+  replyIndicator.style.borderRadius = '50%';
+  replyIndicator.style.width = '24px';
+  replyIndicator.style.height = '24px';
+  replyIndicator.style.display = 'flex';
+  replyIndicator.style.alignItems = 'center';
+  replyIndicator.style.justifyContent = 'center';
+  replyIndicator.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)';
+  replyIndicator.style.fontSize = '12px';
+  replyIndicator.style.zIndex = '10';
+  swipedBubble.style.position = 'relative';
+  swipedBubble.appendChild(replyIndicator);
+}
+
+function handleDragMove(e, clientX) {
+  if (!isSwiping || !swipedBubble) return;
+  swipeCurrentX = clientX;
+  const diff = swipeCurrentX - swipeStartX;
+  
+  if (diff > 0 && diff < 80) {
+    swipedBubble.style.transform = `translateX(${diff}px)`;
+    if (replyIndicator) {
+      const progress = Math.min(diff / 50, 1);
+      replyIndicator.style.transform = `translateY(-50%) scale(${progress})`;
+      replyIndicator.style.opacity = progress;
+    }
+  }
+}
+
+function handleDragEnd(e) {
+  if (!isSwiping || !swipedBubble) return;
+  const diff = swipeCurrentX - swipeStartX;
+  
+  swipedBubble.style.transition = 'transform 0.2s ease-out';
+  swipedBubble.style.transform = 'translateX(0)';
+  
+  if (replyIndicator) {
+    replyIndicator.remove();
+    replyIndicator = null;
+  }
+  
+  if (diff > 50) {
+    replyToBubble(swipedBubble);
+  }
+  
+  isSwiping = false;
+  swipedBubble = null;
+}
+
+const chatAreaEl = document.getElementById('chatArea');
+
+chatAreaEl.addEventListener('touchstart', (e) => handleDragStart(e, e.touches[0].clientX), { passive: true });
+chatAreaEl.addEventListener('touchmove', (e) => handleDragMove(e, e.touches[0].clientX), { passive: true });
+chatAreaEl.addEventListener('touchend', handleDragEnd);
+
+chatAreaEl.addEventListener('mousedown', (e) => {
+  if (e.button !== 0) return;
+  handleDragStart(e, e.clientX);
+});
+document.addEventListener('mousemove', (e) => {
+  if (isSwiping) handleDragMove(e, e.clientX);
+});
+document.addEventListener('mouseup', (e) => {
+  if (isSwiping) handleDragEnd(e);
+});
+
+function replyToBubble(bubbleWrap) {
   const senderName = bubbleWrap.querySelector('.bubble-name')?.textContent || 'Someone';
   const messageText = bubbleWrap.dataset.msgText || bubbleWrap.querySelector('.message-text')?.innerText || bubbleWrap.querySelector('.bubble').innerText.split('\n')[0];
   const msgId = bubbleWrap.dataset.msgId || '';
@@ -510,6 +612,11 @@ window.replyToMessageDropdown = function(btn) {
   
   const input = document.getElementById('msgInput');
   input.focus();
+}
+
+window.replyToMessageDropdown = function(btn) {
+  const bubbleWrap = btn.closest('.bubble-wrap');
+  replyToBubble(bubbleWrap);
   btn.closest('.bubble-dropdown-list').classList.remove('show');
 }
 
