@@ -196,7 +196,12 @@
     </div>
 
     <!-- INPUT AREA -->
-    <div class="wa-input-bar">
+    <div class="wa-input-bar" style="position: relative;">
+      <!-- COMMAND POPUP -->
+      <div id="commandPopup" class="command-popup hidden">
+        <!-- Injected via script.js -->
+      </div>
+      
       <button class="emoji-btn" title="Emoji" onclick="toggleEmojiPicker()">😊</button>
       <div class="emoji-picker" id="emojiPicker">
         <span onclick="insertEmoji('🔥')">🔥</span><span onclick="insertEmoji('🎉')">🎉</span>

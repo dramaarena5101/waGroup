@@ -49,6 +49,16 @@ const APP_CONFIG = {
     "Nikmati acaranya 🎊"
   ],
 
+  // -- PENGATURAN BOT KEYWORD --
+  botCommands: [
+    { command: "@guidebook", description: "Dapatkan link Guide Book resmi", reply: "📚 Guide Book: <a href='assets/guide-book.pdf' target='_blank' class='welcome-link'>Download di sini</a>" },
+    { command: "@susunanacara", description: "Lihat rundown / susunan acara", reply: "📅 <b>Susunan Acara:</b><br/>07.00 - Registrasi & Pembukaan<br/>08.00 - Sambutan Panitia & Doa<br/>09.00 - Penampilan Paduan Suara<br/>10.00 - Drama & Teater Kolosal<br/>11.30 - Istirahat & Makan Siang<br/>13.00 - Tari Tradisional & Modern<br/>14.30 - Band & Akustik<br/>16.00 - Pembagian Hadiah & Penutup" },
+    { command: "@lokasi", description: "Lihat info lokasi acara", reply: "📍 Lokasi: Gedung Aula Utama, Pondok Modern Darussalam Gontor. <a href='https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo' target='_blank' class='welcome-link'>Buka di Google Maps</a>" }
+  ],
+
+  // -- PENGATURAN AUDIO --
+  voiceCallAudio: "assets/voice-call.mp3", // File MP3 untuk simulasi obrolan saat menelepon
+
   // -- PENGATURAN TEMA --
   theme: {
     chatBackgroundColor: "#ECE5DD", // Warna background dasar chat
@@ -185,6 +195,12 @@ document.addEventListener('DOMContentLoaded', () => {
   applyAppConfig();
   renderStaticMessages();
   
+  // Attach input listener for commands
+  const msgInput = document.getElementById('msgInput');
+  if (msgInput) {
+    msgInput.addEventListener('input', (e) => window.checkCommand(e.target.value));
+  }
+
   const saved = localStorage.getItem('ps_username');
   if (saved) {
     currentUser = saved;
@@ -397,6 +413,26 @@ function sendMessage() {
     lastSendTime = Date.now();
     closeEmojiPicker();
     cancelReply();
+    
+    const popup = document.getElementById('commandPopup');
+    if (popup) popup.classList.add('hidden');
+
+    // Check if user's message triggers a bot command
+    const matchedCommand = APP_CONFIG.botCommands.find(c => text.toLowerCase().includes(c.command.toLowerCase()));
+    if (matchedCommand) {
+      setTimeout(() => {
+        const botPayload = {
+          name: "Panitia",
+          message: matchedCommand.reply,
+          timestamp: Date.now(),
+          isAdmin: false,
+          color: "#E91E63" // optional, will be handled by hashColor if omitted, but let's pass it
+        };
+        // For simplicity we just push it normally as a system/bot message
+        // Since we don't have a specific bot structure, we can just push it as "Panitia"
+        window._push(window._ref, botPayload);
+      }, 1000); // 1 second delay
+    }
   }).catch(err => {
     showToast('❌ Gagal kirim. Coba lagi.');
     console.error(err);
@@ -645,19 +681,31 @@ function editMessage(btn) {
 /* ============================
    CALL FEATURES
    ============================ */
+let voiceAudio = null;
+
 function startCall() {
   document.getElementById('callModal').classList.remove('hidden');
   document.getElementById('callStatus').textContent = 'Memanggil...';
 
-  // simulate ringing → connected
+  // play ringing sound via beep for 3 seconds
+  playBeep();
+  
   clearTimeout(callTimer);
   callTimer = setTimeout(() => {
+    stopBeep();
     document.getElementById('callStatus').textContent = 'Terhubung ✓';
     document.getElementById('callStatus').style.color = '#25D366';
+    
+    // Play voice audio
+    if (APP_CONFIG.voiceCallAudio) {
+      if (!voiceAudio) {
+        voiceAudio = new Audio(APP_CONFIG.voiceCallAudio);
+        voiceAudio.loop = true;
+      }
+      voiceAudio.currentTime = 0;
+      voiceAudio.play().catch(e => console.warn('Autoplay blocked:', e));
+    }
   }, 3000);
-
-  // optional: play ringtone via Web Audio beep
-  playBeep();
 }
 
 function endCall() {
@@ -665,6 +713,10 @@ function endCall() {
   document.getElementById('callModal').classList.add('hidden');
   document.getElementById('callStatus').style.color = '';
   stopBeep();
+  if (voiceAudio) {
+    voiceAudio.pause();
+    voiceAudio.currentTime = 0;
+  }
   showToast('📵 Panggilan diakhiri');
 }
 
@@ -876,3 +928,39 @@ function simulateIncomingCall() {
   // Notifikasi akan muncul secara acak untuk simulasi
   // Bisa diaktifkan jika needed
 }
+
+/* ============================
+   BOT COMMANDS & AUTOCOMPLETE
+   ============================ */
+window.checkCommand = function(val) {
+  const popup = document.getElementById('commandPopup');
+  if (!popup) return;
+  
+  if (val.startsWith('@')) {
+    const search = val.toLowerCase();
+    const matches = APP_CONFIG.botCommands.filter(c => c.command.toLowerCase().startsWith(search));
+    
+    if (matches.length > 0) {
+      popup.innerHTML = matches.map(c => `
+        <div class="command-item" onclick="selectCommand('${c.command}')">
+          <span class="command-item-name">${c.command}</span>
+          <span class="command-item-desc">${c.description}</span>
+        </div>
+      `).join('');
+      popup.classList.remove('hidden');
+    } else {
+      popup.classList.add('hidden');
+    }
+  } else {
+    popup.classList.add('hidden');
+  }
+};
+
+window.selectCommand = function(cmd) {
+  const input = document.getElementById('msgInput');
+  if (!input) return;
+  input.value = cmd + ' ';
+  document.getElementById('commandPopup').classList.add('hidden');
+  input.focus();
+  window.checkCommand(input.value);
+};
