@@ -19,16 +19,16 @@ const APP_CONFIG = {
   groupName: "Drama Arena 5101",
   groupAvatar: "assets/logo.png",
   groupBanner: "assets/7.jpeg",
-  pageTitle: "Drama Arena 5101 – Grup",
+  pageTitle: "Yahanu Grup DA 5101",
 
   // -- PENGATURAN INFO GRUP --
   // Deskripsi grup ini akan muncul di sidebar saat nama grup diklik
   groupDescription: "Selamat datang di grup resmi Drama Arena 5101! Di sini bisa  berbagi momen, dan menyaksikan keseruan acara bersama. Mari saling mendukung para penampil! 🎉",
   eventPosters: [
-    { src: 'assets/3.jpg', label: 'Drama' },
-    { src: 'assets/4.jpg', label: 'Paduan Suara' },
-    { src: 'assets/5.jpg', label: 'Tari' },
-    { src: 'assets/6.jpg', label: 'Band' }
+    { src: 'assets/5.jpeg', label: 'Drama' },
+    { src: 'assets/6.jpeg', label: 'Paduan Suara' },
+    { src: 'assets/7.jpeg', label: 'Tari' },
+    { src: 'assets/8.jpeg', label: 'Band' }
   ],
   schedule: [
     { time: "07.00", text: "Registrasi & Pembukaan" },
@@ -51,6 +51,48 @@ const APP_CONFIG = {
     "Nikmati acaranya 🎊"
   ],
 
+  // ===================================================================
+  // 🚫 NAMA YANG DILARANG — Cegah pengguna iseng pakai nama panitia
+  //    Tulis dalam huruf kecil, cek case-insensitive otomatis
+  // ===================================================================
+  bannedNames: [
+    "drama arena",
+    "drama arena 5101",
+    "panitia",
+    "panitia drama",
+    "panitia drama arena",
+    "panitia drama arena 5101",
+    "admin",
+    "admin Drama Arena",
+    "admin Drama Arena 5101",
+    "administrator",
+    "moderator",
+    "mod",
+    "official"
+  ],
+
+  // ===================================================================
+  // 🔑 KODE RAHASIA ADMIN — Device yang input kode ini diizinkan
+  //    pakai nama apapun termasuk nama yang dilarang
+  //    Ganti kode ini dengan kata sandi kamu sendiri!
+  // ===================================================================
+  adminSecretCode: "DA5101PANITIA",
+
+  // ===================================================================
+  // 🎥 BACKGROUND LAYAR PANGGILAN (Voice Call)
+  //    Ganti dengan path gambar atau warna CSS
+  //    Contoh: 'assets/call-bg.jpg' atau '#1a1a2e'
+  // ===================================================================
+  voiceCallBackground: "#0b141a",  // warna gelap default
+  voiceCallAvatar: "🎭",           // emoji atau ganti dengan path gambar: 'assets/logo.png'
+
+  // ===================================================================
+  // 🎵 AUDIO PANGGILAN SUARA (Voice Call)
+  //    Isi dengan path file MP3 kamu, contoh: 'assets/call-audio.mp3'
+  //    Kosongkan ("") jika tidak ingin ada audio
+  // ===================================================================
+  voiceCallAudio: "assets/1.mp3",  // ← TARUH MP3 KAMU DI SINI
+
   // -- PENGATURAN BOT KEYWORD --
   botCommands: [
     { command: "@guidebook", description: "Dapatkan link Guide Book resmi", reply: "📚 Guide Book: <a href='assets/guide-book.pdf' target='_blank' style='color:#00a884;font-weight:bold;'>Download di sini</a>" },
@@ -67,7 +109,7 @@ const APP_CONFIG = {
 
     { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `In Syaa Allah Untuk📍Lokasi acara kami share location ust: <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" style="color:#00a884;font-weight:bold;">Lihat di Google Maps</a>` },
 
-       { sender: "", color: "#2196F3", time: "08.02", content: "Boleh spil acara nanti gk min? 🧐", isOwn: true },
+    { sender: "", color: "#2196F3", time: "08.02", content: "Boleh spil acara nanti gk min? 🧐", isOwn: true },
 
     { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `Wih... boleh banget dong ust! <br> Ahlan ust <b>{name}</b> poster acara Drama Arena 5101 <br> tapi spil dikit dulu yaa...ust 🙏` },
 
@@ -238,16 +280,67 @@ function joinChat() {
     setTimeout(() => input.parentElement.style.animation = "", 300);
     return;
   }
-  
+
+  // 🔑 Cek apakah device sudah terdaftar sebagai admin (whitelist)
+  const isWhitelisted = localStorage.getItem('admin_device_trusted') === APP_CONFIG.adminSecretCode;
+
+  // 🚫 Cek nama yang dilarang (kecuali device admin)
+  if (!isWhitelisted) {
+    const nameLower = name.toLowerCase().trim();
+    const isBanned = APP_CONFIG.bannedNames.some(banned =>
+      nameLower === banned.toLowerCase() ||
+      nameLower.startsWith(banned.toLowerCase())
+    );
+
+    if (isBanned) {
+      showNameError(input, `❌ Nama "${name}" tidak diizinkan. Silakan gunakan nama aslimu.`);
+      return;
+    }
+  }
+
   currentUser = escapeHtml(name); // set nama DULU
   localStorage.setItem("ps_username_v2", currentUser);
-  
+
   renderStaticMessages(); // render dengan nama yang sudah diketahui
 
   document.getElementById("nameModal").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
   initChat();
 }
+
+// Tampilkan pesan error di modal join
+function showNameError(input, msg) {
+  let errEl = document.getElementById('nameError');
+  if (!errEl) {
+    errEl = document.createElement('div');
+    errEl.id = 'nameError';
+    errEl.style.cssText = 'color:#ff4444;font-size:13px;margin-top:-12px;margin-bottom:8px;text-align:center;animation:slideDownIn 0.2s;';
+    input.parentElement.insertAdjacentElement('afterend', errEl);
+  }
+  errEl.textContent = msg;
+  input.style.borderColor = '#ff4444';
+  input.parentElement.style.animation = 'shake 0.3s';
+  setTimeout(() => {
+    input.parentElement.style.animation = '';
+    input.style.borderColor = '';
+  }, 400);
+}
+
+// 🔑 Fungsi untuk daftarkan device sebagai admin (ketik kode di console browser)
+// Cara pakai: ketik di console browser: registerAdminDevice('DA5101PANITIA')
+window.registerAdminDevice = function(code) {
+  if (code === APP_CONFIG.adminSecretCode) {
+    localStorage.setItem('admin_device_trusted', code);
+    alert('✅ Device ini terdaftar sebagai admin. Refresh halaman.');
+  } else {
+    alert('❌ Kode salah.');
+  }
+};
+
+window.unregisterAdminDevice = function() {
+  localStorage.removeItem('admin_device_trusted');
+  alert('✅ Device dihapus dari daftar admin.');
+};
 
 function leaveGroup() {
   localStorage.removeItem("ps_username_v2");
@@ -731,7 +824,7 @@ window.startCall = function() {
   callTimer = setTimeout(() => {
     stopBeep();
     document.getElementById("callStatus").textContent = "Terhubung (00:01)";
-    document.getElementById("callStatus").style.color = "#25D366";
+    document.getElementById("callStatus").style.color = "#ff5e00ff";
     
     if (APP_CONFIG.voiceCallAudio) {
       if (!voiceAudio) {
@@ -759,13 +852,25 @@ window.endCall = function() {
 window.startVideoCall = function() {
   document.getElementById("videoModal").classList.remove("hidden");
   const vid = document.getElementById('videoPlayer');
-  if(vid) vid.play().catch(() => {});
+  if (vid) {
+    vid.muted = false; // unmute karena dipicu user gesture (klik tombol)
+    vid.volume = 0.8;
+    vid.play().catch(() => {
+      // fallback: kalau autoplay masih diblokir, tetap play dengan muted
+      vid.muted = true;
+      vid.play().catch(() => {});
+    });
+  }
 };
 
 window.endVideoCall = function() {
   document.getElementById("videoModal").classList.add("hidden");
   const vid = document.getElementById('videoPlayer');
-  if(vid) vid.pause();
+  if (vid) {
+    vid.pause();
+    vid.muted = true; // kembalikan ke muted supaya autoplay tidak error lagi
+    vid.currentTime = 0;
+  }
   showToast("📵 Video call diakhiri");
 };
 
