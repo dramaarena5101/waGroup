@@ -18,12 +18,12 @@ const MSG_LIMIT     = 100;    // pesan terakhir
 const APP_CONFIG = {
   groupName: "Drama Arena 5101",
   groupAvatar: "assets/logo.png",
-  groupBanner: "assets/2.jpg",
-  pageTitle: "Drama Arena 5101 – WhatsApp Web",
+  groupBanner: "assets/7.jpeg",
+  pageTitle: "Drama Arena 5101 – Grup",
 
   // -- PENGATURAN INFO GRUP --
   // Deskripsi grup ini akan muncul di sidebar saat nama grup diklik
-  groupDescription: "Selamat datang di grup resmi Drama Arena 5101! Di sini kamu bisa mengirim ucapan, berbagi momen, dan menyaksikan keseruan acara bersama. Mari saling mendukung para penampil! 🎉",
+  groupDescription: "Selamat datang di grup resmi Drama Arena 5101! Di sini bisa  berbagi momen, dan menyaksikan keseruan acara bersama. Mari saling mendukung para penampil! 🎉",
   eventPosters: [
     { src: 'assets/3.jpg', label: 'Drama' },
     { src: 'assets/4.jpg', label: 'Paduan Suara' },
@@ -41,7 +41,7 @@ const APP_CONFIG = {
     { time: "16.00", text: "Pembagian Hadiah & Penutup" }
   ],
   location: {
-    text: "Gedung Aula Utama<br/>Pondok Modern Darussalam Gontor<br/>Ponorogo, Jawa Timur",
+    text: "Depan Gedung Aula Utama<br/>Pondok Modern Darussalam Gontor<br/>Ponorogo, Jawa Timur",
     link: "https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo"
   },
   rules: [
@@ -54,19 +54,32 @@ const APP_CONFIG = {
   // -- PENGATURAN BOT KEYWORD --
   botCommands: [
     { command: "@guidebook", description: "Dapatkan link Guide Book resmi", reply: "📚 Guide Book: <a href='assets/guide-book.pdf' target='_blank' style='color:#00a884;font-weight:bold;'>Download di sini</a>" },
+
     { command: "@susunanacara", description: "Lihat rundown / susunan acara", reply: "📅 <b>Susunan Acara:</b><br/>07.00 - Registrasi & Pembukaan<br/>08.00 - Sambutan Panitia & Doa<br/>09.00 - Penampilan Paduan Suara<br/>10.00 - Drama & Teater Kolosal<br/>11.30 - Istirahat & Makan Siang<br/>13.00 - Tari Tradisional & Modern<br/>14.30 - Band & Akustik<br/>16.00 - Pembagian Hadiah & Penutup" },
+
     { command: "@lokasi", description: "Lihat info lokasi acara", reply: "📍 Lokasi: Gedung Aula Utama, Pondok Modern Darussalam Gontor. <a href='https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo' target='_blank' style='color:#00a884;font-weight:bold;'>Buka di Google Maps</a>" }
   ],
 
   // -- PESAN STATIS AWAL --
+
   staticMessages: [
-    { sender: "Panitia", color: "#E91E63", time: "08.00", content: "Selamat datang di grup resmi Drama Arena 5101! Di sini kamu bisa sharing info, tanya-tanya, dan dukung para penampil! 🔥" },
-    { sender: "Panitia", color: "#E91E63", time: "08.01", content: `📍 Lokasi acara: <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" style="color:#00a884;font-weight:bold;">Lihat di Google Maps</a>` },
-    { sender: "Panitia", color: "#E91E63", time: "08.01", content: `🖼️ Berikut poster acara Drama Arena 5101:` },
-    { sender: "Panitia", color: "#E91E63", time: "08.01", content: `<img src="assets/1.jpg" alt="Poster Drama" style="width:100%; border-radius:8px; cursor:pointer;" onclick="openImage(this.src)">` },
-    { sender: "", color: "#2196F3", time: "08.02", content: "Min, ada link guide booknya gk? Biar kita bisa prepare sebelum hari H 🎯", isOwn: true },
-    { sender: "Panitia", color: "#E91E63", time: "08.02", content: `📚 Guide Book: <a href="assets/guide-book.pdf" target="_blank" style="color:#00a884;font-weight:bold;">Download di sini</a>` },
-    { sender: "Panitia", color: "#E91E63", time: "08.03", content: "Yuk saling kenalan, share pengalaman, dan ramaikan chat ini! 🎉" }
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.00", content: "Ahlan wa sahlan ust <b>{name}</b>! 🎉\n di grup resmi Drama Arena 5101! Di sini bisa sharing info, tanya-tanya, dan dukung para penampil! 🔥" },
+
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `In Syaa Allah Untuk📍Lokasi acara kami share location ust: <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" style="color:#00a884;font-weight:bold;">Lihat di Google Maps</a>` },
+
+       { sender: "", color: "#2196F3", time: "08.02", content: "Boleh spil acara nanti gk min? 🧐", isOwn: true },
+
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `Wih... boleh banget dong ust! <br> Ahlan ust <b>{name}</b> poster acara Drama Arena 5101 <br> tapi spil dikit dulu yaa...ust 🙏` },
+
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `<img src="assets/6.jpeg" alt="Poster Drama" style="width:100%; border-radius:8px; cursor:pointer;" onclick="openImage(this.src)">` },
+
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `<img src="assets/5.jpeg" alt="Poster Drama" style="width:100%; border-radius:8px; cursor:pointer;" onclick="openImage(this.src)">` },
+
+    { sender: "", color: "#2196F3", time: "08.02", content: "Jos menyala 🔥Min, kalo link guide booknya ada gk? Biar kita bisa prepare sebelum nonton ", isOwn: true },
+
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.02", content: `Alhamdulilah sudah ada nih ust <b>{name}</b> Guide Booknya bisa  <a href="assets/guide-book.pdf" target="_blank" style="color:#00a884;font-weight:bold;">Unduh di sini</a> ya...😊` },
+    
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.03", content: "Ahlan ustadz <b>{name}</b> bisa diramaikan grup ini ya, bisa share info dll 🎉 <br>sama nanti kalo butuh keperluan acara langsung tag mimin aja ya <br> Enjoy..." }
   ]
 };
 
@@ -167,10 +180,13 @@ function renderStaticMessages() {
     
     const tickHtml = msg.isOwn ? `<span class="bubble-tick"><svg viewBox="0 0 16 15" width="16" height="15" fill="currentColor"><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"/></svg></span>` : "";
 
+    // Ganti placeholder {name} dengan nama user yang sedang login
+    const resolvedContent = msg.content.replace(/\{name\}/g, currentUser || 'Kamu');
+
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
     bubble.innerHTML = `
-      ${msg.content}
+      ${resolvedContent}
       <div class="bubble-meta">
         <span class="bubble-time">${msg.time}</span>
         ${tickHtml}
@@ -189,11 +205,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
 
   applyAppConfig();
-  renderStaticMessages();
 
   const savedUser = localStorage.getItem("ps_username_v2");
   if (savedUser) {
-    currentUser = savedUser;
+    currentUser = savedUser; // set DULU
+    renderStaticMessages(); // baru render dengan nama yang benar
     document.getElementById("nameModal").classList.add("hidden");
     document.getElementById("app").classList.remove("hidden");
     initChat();
@@ -223,9 +239,11 @@ function joinChat() {
     return;
   }
   
-  currentUser = escapeHtml(name);
+  currentUser = escapeHtml(name); // set nama DULU
   localStorage.setItem("ps_username_v2", currentUser);
   
+  renderStaticMessages(); // render dengan nama yang sudah diketahui
+
   document.getElementById("nameModal").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
   initChat();
