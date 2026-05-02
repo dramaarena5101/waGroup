@@ -21,6 +21,13 @@ const APP_CONFIG = {
   groupBanner: "assets/7.jpeg",
   pageTitle: "Yahanu Grup DA 5101",
 
+  // ===================================================================
+  // 🖼️ BACKGROUND CHAT AREA
+  //    Isi path gambar: 'assets/bg-chat.jpg'
+  //    Kosongkan ("") untuk pakai warna solid dari theme
+  // ===================================================================
+  chatBackground: "",  // ← ISI PATH GAMBAR BG CHAT, contoh: 'assets/bg-chat.jpg'
+
   // -- PENGATURAN INFO GRUP --
   // Deskripsi grup ini akan muncul di sidebar saat nama grup diklik
   groupDescription: "Selamat datang di grup resmi Drama Arena 5101! Di sini bisa  berbagi momen, dan menyaksikan keseruan acara bersama. Mari saling mendukung para penampil! 🎉",
@@ -205,6 +212,19 @@ function applyAppConfig() {
   if (rulesEl) {
     rulesEl.innerHTML = APP_CONFIG.rules.map(r => `<li style="margin-bottom:6px;">${r}</li>`).join('');
   }
+
+  // Terapkan background chat area dari config
+  const chatEl = document.getElementById('chatArea');
+  if (chatEl) {
+    if (APP_CONFIG.chatBackground) {
+      chatEl.style.backgroundImage = `url('${APP_CONFIG.chatBackground}')`;
+      chatEl.style.backgroundSize = 'cover';
+      chatEl.style.backgroundPosition = 'center';
+      chatEl.style.backgroundAttachment = 'local';
+    } else {
+      chatEl.style.backgroundImage = '';
+    }
+  }
 }
 
 function renderStaticMessages() {
@@ -243,8 +263,13 @@ function renderStaticMessages() {
 
 // Initialization
 document.addEventListener("DOMContentLoaded", () => {
+  // Default DARK MODE — simpan 'light' di localStorage untuk pakai light mode
   const savedTheme = localStorage.getItem('wa_theme');
-  if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  if (savedTheme === 'light') {
+    document.documentElement.removeAttribute('data-theme');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
 
   applyAppConfig();
 

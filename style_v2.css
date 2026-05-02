@@ -5,36 +5,42 @@
 :root {
   /* Light Theme Variables */
   --wa-bg: #E5DDD5;
-  --wa-header: #008069;
-  --wa-header-dark: #005c4b;
-  --wa-bubble-out: #d9fdd3;
+  --wa-header: #c44000;          /* brand orange-red */
+  --wa-header-dark: #962f00;
+  --wa-bubble-out: #ffe4d6;      /* bubble sent: warm orange tint */
   --wa-bubble-in: #ffffff;
   --wa-input-bg: #ffffff;
   --wa-text: #111b21;
   --wa-sub: #667781;
   --wa-time: #667781;
-  --wa-tick: #53bdeb;
+  --wa-tick: #c44000;
   --wa-pin: rgba(255, 255, 255, 0.9);
   --glass-bg: rgba(255, 255, 255, 0.85);
   --glass-border: rgba(255, 255, 255, 0.4);
   --shadow-sm: 0 1px 2px rgba(11, 20, 26, 0.05);
   --shadow-md: 0 2px 5px rgba(11, 20, 26, 0.08);
   --shadow-lg: 0 8px 32px rgba(11, 20, 26, 0.1);
+  --wa-accent: #c44000;          /* warna branding utama — ganti 1 baris ini */
 }
 
 [data-theme="dark"] {
-  --wa-bg: #0b141a;
-  --wa-header: #202c33;
+  --wa-bg: #0b141a;              /* Deep dark background */
+  --wa-header: #202c33;          /* Dark header */
   --wa-header-dark: #111b21;
-  --wa-bubble-out: #005c4b;
-  --wa-bubble-in: #202c33;
+  --wa-bubble-out: #4d2000;      /* Dark branded orange for sent bubbles */
+  --wa-bubble-in: #202c33;       /* Dark grey for received bubbles */
   --wa-input-bg: #2a3942;
   --wa-text: #e9edef;
   --wa-sub: #8696a0;
   --wa-time: #8696a0;
+  --wa-tick: #ff6b35;            /* Branded orange tick */
   --wa-pin: rgba(32, 44, 51, 0.95);
   --glass-bg: rgba(32, 44, 51, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 85, 0, 0.2); 
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --wa-accent: #ff5500;          /* Main branding color */
 }
 
 *,
@@ -192,7 +198,7 @@ body {
 }
 
 .pinned-icon-wrapper {
-  background: #00a884;
+  background: var(--wa-accent);
   width: 28px;
   height: 28px;
   border-radius: 6px;
@@ -363,7 +369,7 @@ body {
   flex-direction: column;
   background: rgba(0, 0, 0, 0.06);
   border-radius: 0 6px 6px 0;
-  border-left: 4px solid #008069;
+  border-left: 4px solid var(--wa-accent);
   padding: 6px 10px;
   margin-bottom: 6px;
   cursor: pointer;
@@ -377,7 +383,7 @@ body {
 
 [data-theme="dark"] .quoted-msg {
   background: rgba(0, 0, 0, 0.25);
-  border-left-color: #00a884;
+  border-left-color: var(--wa-accent);
 }
 
 [data-theme="dark"] .quoted-msg:hover {
@@ -385,19 +391,19 @@ body {
 }
 
 .bubble-wrap.out .quoted-msg {
-  border-left-color: #00a884;
+  border-left-color: var(--wa-accent);
 }
 
 .quoted-name {
   font-size: 12.5px;
   font-weight: 700;
-  color: #008069;
+  color: var(--wa-accent);
   margin-bottom: 3px;
 }
 
 [data-theme="dark"] .quoted-name,
 .bubble-wrap.out .quoted-name {
-  color: #00a884;
+  color: var(--wa-accent);
 }
 
 .quoted-text {
@@ -611,7 +617,7 @@ body {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #00a884;
+  background: var(--wa-accent);
   border: none;
   color: #fff;
   display: flex;
@@ -623,7 +629,7 @@ body {
 }
 
 .send-btn:hover {
-  background: #008f6f;
+  background: color-mix(in srgb, var(--wa-accent) 85%, black);
   transform: scale(1.05);
 }
 
@@ -884,7 +890,7 @@ body {
   position: absolute;
   top: -4px;
   right: -4px;
-  background: #25D366;
+  background: var(--wa-accent);
   color: #fff;
   font-size: 11px;
   font-weight: bold;
@@ -925,7 +931,7 @@ body {
 .reply-line {
   width: 4px;
   min-height: 36px;
-  background: #00a884;
+  background: var(--wa-accent);
   border-radius: 4px;
   flex-shrink: 0;
 }
@@ -938,7 +944,7 @@ body {
 .reply-preview-name {
   font-size: 13px;
   font-weight: 700;
-  color: #00a884;
+  color: var(--wa-accent);
   margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -1077,15 +1083,13 @@ body {
 .info-section-title {
   font-size: 13px;
   font-weight: 700;
-  color: #008069;
+  color: var(--wa-accent);
   margin-bottom: 12px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-[data-theme="dark"] .info-section-title {
-  color: #00a884;
-}
+[data-theme="dark"] .info-section-title { color: var(--wa-accent); }
 
 /* Group description text inside info panel */
 #configGroupDescription {
