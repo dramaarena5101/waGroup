@@ -689,7 +689,7 @@ body {
 }
 
 .join-screen-bg {
-  background: linear-gradient(135deg, #008069 0%, #005c4b 100%);
+  background: linear-gradient(135deg, #f45500 0%, #5c1400 100%);
 }
 
 .glass-join-card {
@@ -723,14 +723,27 @@ body {
 .join-logo-wrapper {
   width: 120px;
   height: 120px;
-  background: #fff;
+  /* background: #fff; */
+  /* border-radius: 50%; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* font-size: 64px; */
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.join-logo-wrapper .modal-logo {
+  width: 120px;
+  height: 120px;
+  /* background: #fff;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 64px;
   margin-bottom: 24px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); */
 }
 
 .glass-join-card h2 {
@@ -756,7 +769,7 @@ body {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 2px solid #005c4b;
+  border: 2px solid #5c0000;
   margin-left: -12px;
   object-fit: cover;
 }
@@ -769,14 +782,14 @@ body {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #00a884;
+  background: #a80000;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
   font-weight: bold;
-  border: 2px solid #005c4b;
+  border: 2px solid #5c0000;
   margin-left: -12px;
   z-index: 1;
 }
@@ -814,7 +827,7 @@ body {
   width: 100%;
   padding: 16px;
   border-radius: 12px;
-  background: #00a884;
+  background: #a82400;
   color: #fff;
   border: none;
   font-size: 16px;
@@ -825,7 +838,7 @@ body {
   justify-content: center;
   gap: 8px;
   transition: background 0.2s, transform 0.1s;
-  box-shadow: 0 4px 12px rgba(0, 168, 132, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 89, 0, 0.4);
 }
 
 .premium-btn:hover {
