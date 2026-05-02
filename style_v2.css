@@ -5,9 +5,11 @@
 :root {
   /* Light Theme Variables */
   --wa-bg: #E5DDD5;
-  --wa-header: #c44000;          /* brand orange-red */
+  --wa-header: #c44000;
+  /* brand orange-red */
   --wa-header-dark: #962f00;
-  --wa-bubble-out: #ffe4d6;      /* bubble sent: warm orange tint */
+  --wa-bubble-out: #ffe4d6;
+  /* bubble sent: warm orange tint */
   --wa-bubble-in: #ffffff;
   --wa-input-bg: #ffffff;
   --wa-text: #111b21;
@@ -20,27 +22,34 @@
   --shadow-sm: 0 1px 2px rgba(11, 20, 26, 0.05);
   --shadow-md: 0 2px 5px rgba(11, 20, 26, 0.08);
   --shadow-lg: 0 8px 32px rgba(11, 20, 26, 0.1);
-  --wa-accent: #c44000;          /* warna branding utama — ganti 1 baris ini */
+  --wa-accent: #c44000;
+  /* warna branding utama — ganti 1 baris ini */
 }
 
 [data-theme="dark"] {
-  --wa-bg: #0b141a;              /* Deep dark background */
-  --wa-header: #202c33;          /* Dark header */
+  --wa-bg: #0b141a;
+  /* Deep dark background */
+  --wa-header: #202c33;
+  /* Dark header */
   --wa-header-dark: #111b21;
-  --wa-bubble-out: #4d2000;      /* Dark branded orange for sent bubbles */
-  --wa-bubble-in: #202c33;       /* Dark grey for received bubbles */
+  --wa-bubble-out: #4d2000;
+  /* Dark branded orange for sent bubbles */
+  --wa-bubble-in: #202c33;
+  /* Dark grey for received bubbles */
   --wa-input-bg: #2a3942;
   --wa-text: #e9edef;
   --wa-sub: #8696a0;
   --wa-time: #8696a0;
-  --wa-tick: #ff6b35;            /* Branded orange tick */
+  --wa-tick: #ff6b35;
+  /* Branded orange tick */
   --wa-pin: rgba(32, 44, 51, 0.95);
   --glass-bg: rgba(32, 44, 51, 0.85);
-  --glass-border: rgba(255, 85, 0, 0.2); 
+  --glass-border: rgba(255, 85, 0, 0.2);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --wa-accent: #ff5500;          /* Main branding color */
+  --wa-accent: #ff5500;
+  /* Main branding color */
 }
 
 *,
@@ -145,10 +154,10 @@ body {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.header-avatar {
+.header-avatar, .info-avatar, .call-avatar {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
+  border-radius: var(--avatar-radius, 50%);
   background: #bebebe;
   display: flex;
   align-items: center;
@@ -156,6 +165,13 @@ body {
   font-size: 20px;
   flex-shrink: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  overflow: hidden; /* Tambahkan ini agar img di dalamnya ikut bulat */
+}
+
+.avatar-img-auto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .header-text {
@@ -727,16 +743,20 @@ body {
 }
 
 .join-logo-wrapper {
-  width: 120px;
-  height: 120px;
-  /* background: #fff; */
-  /* border-radius: 50%; */
+  width: 140px;
+  height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* font-size: 64px; */
   margin-bottom: 24px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  /* Shadow untuk efek premium tanpa memotong gambar */
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+}
+
+.join-logo-wrapper img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain; /* Agar logo tidak terdistorsi/terpotong */
 }
 
 .join-logo-wrapper .modal-logo {
@@ -1089,7 +1109,9 @@ body {
   letter-spacing: 0.04em;
 }
 
-[data-theme="dark"] .info-section-title { color: var(--wa-accent); }
+[data-theme="dark"] .info-section-title {
+  color: var(--wa-accent);
+}
 
 /* Group description text inside info panel */
 #configGroupDescription {
@@ -1138,6 +1160,36 @@ body {
 /* Call Overlay */
 .call-overlay {
   background: #0b141a;
+}
+
+.call-btn-v2 {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.call-btn-v2:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.1);
+}
+
+.call-btn-v2.end-btn-v2 {
+  background: #ff3b30;
+  width: 56px;
+  height: 56px;
+}
+
+.call-btn-v2.end-btn-v2:hover {
+  background: #ff453a;
+  box-shadow: 0 0 15px rgba(255, 59, 48, 0.4);
 }
 
 .call-screen {

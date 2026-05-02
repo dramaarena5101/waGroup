@@ -280,24 +280,36 @@
           style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 20px;">
           <div class="video-top-bar" style="display: flex; justify-content: space-between; align-items: center;">
             <div class="video-caller-info"
-              style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 20px; color: #fff;">
-              <div class="video-caller-dot" style="width: 8px; height: 8px; background: #ea0038; border-radius: 50%;">
-              </div>
-              <span id="videoCallerName">Drama Arena 5101 • Live</span>
+              style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.4); padding: 8px 16px; border-radius: 20px; color: #fff; backdrop-filter: blur(5px);">
+              <div class="video-caller-dot" style="width: 8px; height: 8px; background: #ff4b2b; border-radius: 50%; box-shadow: 0 0 8px #ff4b2b;"></div>
+              <span id="videoCallerName" style="font-weight: 600; letter-spacing: 0.5px;">Drama Arena 5101 • Live</span>
             </div>
             <button class="video-close-btn" onclick="endVideoCall()"
-              style="background: rgba(0,0,0,0.5); border: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer;">✕</button>
+              style="background: rgba(0,0,0,0.4); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px);">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
           </div>
+          
           <div class="video-self-preview"
-            style="align-self: flex-end; width: 100px; height: 150px; background: #333; border-radius: 12px; border: 2px solid rgba(255,255,255,0.5); overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-            <div class="video-self-placeholder" style="text-align: center; color: #fff;">📷<br /><small>Kamera</small>
+            style="align-self: flex-end; width: 90px; height: 130px; background: #1a1a1a; border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.3); overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+            <div class="video-self-placeholder" style="text-align: center; color: rgba(255,255,255,0.6);">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </div>
           </div>
-          <div class="video-bottom-bar" style="display: flex; justify-content: center; gap: 20px;">
-            <button class="call-btn mute-btn" title="Mic" style="background: rgba(255,255,255,0.2);">🎙️</button>
-            <button class="call-btn end-btn" onclick="endVideoCall()">📵</button>
-            <button class="call-btn" title="Kamera" style="background: rgba(255,255,255,0.2);">📹</button>
-            <button class="call-btn" title="Balik Kamera" style="background: rgba(255,255,255,0.2);">🔄</button>
+
+          <div class="video-bottom-bar" style="display: flex; justify-content: center; gap: 15px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 30px; align-self: center; backdrop-filter: blur(10px); margin-bottom: 10px;">
+            <button class="call-btn-v2" title="Mute Mic">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+            </button>
+            <button class="call-btn-v2" title="Video Off">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+            </button>
+            <button class="call-btn-v2 flip-btn" title="Balik Kamera">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M7 14l-5-5 5-5v3h3v4H7v3zm10-4l5 5-5 5v-3h-3v-4h3v-3z"/></svg>
+            </button>
+            <button class="call-btn-v2 end-btn-v2" onclick="endVideoCall()" title="Akhiri">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08a.952.952 0 0 1-.29-.7c0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/></svg>
+            </button>
           </div>
         </div>
       </div>

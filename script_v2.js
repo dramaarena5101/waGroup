@@ -21,6 +21,9 @@ const APP_CONFIG = {
   groupBanner: "assets/7.jpeg",
   pageTitle: "Yahanu Grup DA 5101",
 
+  // Bentuk Avatar Grup: 'circle' (bulat) atau 'square' (kotak/natural)
+  groupAvatarShape: "circle", 
+
   // ===================================================================
   // 🖼️ BACKGROUND CHAT AREA
   //    Isi path gambar: 'assets/bg-chat.jpg'
@@ -146,6 +149,11 @@ function toggleTheme() {
 
 function applyAppConfig() {
   document.getElementById('pageTitle').textContent = APP_CONFIG.pageTitle;
+  
+  // Terapkan bentuk avatar (bulat/kotak)
+  const radius = APP_CONFIG.groupAvatarShape === 'circle' ? '50%' : '8px';
+  document.documentElement.style.setProperty('--avatar-radius', radius);
+
   document.getElementById('welcomeGroupName').textContent = APP_CONFIG.groupName;
   document.getElementById('callGroupName').textContent = APP_CONFIG.groupName;
   document.getElementById('infoGroupName').textContent = APP_CONFIG.groupName;
@@ -157,7 +165,8 @@ function applyAppConfig() {
     if (avatar.length <= 2) {
       el.textContent = avatar;
     } else {
-      el.innerHTML = `<img src="${avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.outerHTML='🎭'" />`;
+      // Hilangkan border-radius:50% hardcode agar bisa diatur via CSS
+      el.innerHTML = `<img src="${avatar}" class="avatar-img-auto" onerror="this.outerHTML='🎭'" />`;
     }
   };
   setAvatar('welcomeLogo', APP_CONFIG.groupAvatar);
