@@ -1,0 +1,821 @@
+/* ================================================
+   PENTAS SENI 2026 — script_v2.js (Feature Parity with v1)
+   ================================================ */
+
+/* ---- STATE ---- */
+let currentUser   = null;
+let lastSendTime  = 0;
+let unreadCount   = 0;
+let lastDateLabel = '';
+let callTimer     = null;
+let replyingTo    = null; // { name, text, id }
+
+const SEND_DELAY_MS = 2000;   // anti-spam
+const MSG_LIMIT     = 100;    // pesan terakhir
+
+/* ---- CONFIGURATION (MUDAH DISET UP) ---- */
+// ⬇️ UBAH DATA DI BAWAH INI SESUAI ACARA ANDA ⬇️
+const APP_CONFIG = {
+  groupName: "Drama Arena 5101",
+  groupAvatar: "assets/logo.png",
+  groupBanner: "assets/2.jpg",
+  pageTitle: "Drama Arena 5101 – WhatsApp Web",
+
+  // -- PENGATURAN INFO GRUP --
+  // Deskripsi grup ini akan muncul di sidebar saat nama grup diklik
+  groupDescription: "Selamat datang di grup resmi Drama Arena 5101! Di sini kamu bisa mengirim ucapan, berbagi momen, dan menyaksikan keseruan acara bersama. Mari saling mendukung para penampil! 🎉",
+  eventPosters: [
+    { src: 'assets/3.jpg', label: 'Drama' },
+    { src: 'assets/4.jpg', label: 'Paduan Suara' },
+    { src: 'assets/5.jpg', label: 'Tari' },
+    { src: 'assets/6.jpg', label: 'Band' }
+  ],
+  schedule: [
+    { time: "07.00", text: "Registrasi & Pembukaan" },
+    { time: "08.00", text: "Sambutan Panitia & Doa" },
+    { time: "09.00", text: "Penampilan Paduan Suara" },
+    { time: "10.00", text: "Drama & Teater Kolosal" },
+    { time: "11.30", text: "Istirahat & Makan Siang" },
+    { time: "13.00", text: "Tari Tradisional & Modern" },
+    { time: "14.30", text: "Band & Akustik" },
+    { time: "16.00", text: "Pembagian Hadiah & Penutup" }
+  ],
+  location: {
+    text: "Gedung Aula Utama<br/>Pondok Modern Darussalam Gontor<br/>Ponorogo, Jawa Timur",
+    link: "https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo"
+  },
+  rules: [
+    "Sopan dan saling menghormati",
+    "Dilarang spam / SARA",
+    "Kirim ucapan positif!",
+    "Nikmati acaranya 🎊"
+  ],
+
+  // -- PENGATURAN BOT KEYWORD --
+  botCommands: [
+    { command: "@guidebook", description: "Dapatkan link Guide Book resmi", reply: "📚 Guide Book: <a href='assets/guide-book.pdf' target='_blank' style='color:#00a884;font-weight:bold;'>Download di sini</a>" },
+    { command: "@susunanacara", description: "Lihat rundown / susunan acara", reply: "📅 <b>Susunan Acara:</b><br/>07.00 - Registrasi & Pembukaan<br/>08.00 - Sambutan Panitia & Doa<br/>09.00 - Penampilan Paduan Suara<br/>10.00 - Drama & Teater Kolosal<br/>11.30 - Istirahat & Makan Siang<br/>13.00 - Tari Tradisional & Modern<br/>14.30 - Band & Akustik<br/>16.00 - Pembagian Hadiah & Penutup" },
+    { command: "@lokasi", description: "Lihat info lokasi acara", reply: "📍 Lokasi: Gedung Aula Utama, Pondok Modern Darussalam Gontor. <a href='https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo' target='_blank' style='color:#00a884;font-weight:bold;'>Buka di Google Maps</a>" }
+  ],
+
+  // -- PESAN STATIS AWAL --
+  staticMessages: [
+    { sender: "Panitia", color: "#E91E63", time: "08.00", content: "Selamat datang di grup resmi Drama Arena 5101! Di sini kamu bisa sharing info, tanya-tanya, dan dukung para penampil! 🔥" },
+    { sender: "Panitia", color: "#E91E63", time: "08.01", content: `📍 Lokasi acara: <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" style="color:#00a884;font-weight:bold;">Lihat di Google Maps</a>` },
+    { sender: "Panitia", color: "#E91E63", time: "08.01", content: `🖼️ Berikut poster acara Drama Arena 5101:` },
+    { sender: "Panitia", color: "#E91E63", time: "08.01", content: `<img src="assets/1.jpg" alt="Poster Drama" style="width:100%; border-radius:8px; cursor:pointer;" onclick="openImage(this.src)">` },
+    { sender: "", color: "#2196F3", time: "08.02", content: "Min, ada link guide booknya gk? Biar kita bisa prepare sebelum hari H 🎯", isOwn: true },
+    { sender: "Panitia", color: "#E91E63", time: "08.02", content: `📚 Guide Book: <a href="assets/guide-book.pdf" target="_blank" style="color:#00a884;font-weight:bold;">Download di sini</a>` },
+    { sender: "Panitia", color: "#E91E63", time: "08.03", content: "Yuk saling kenalan, share pengalaman, dan ramaikan chat ini! 🎉" }
+  ]
+};
+
+// Setup Theme
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('wa_theme', 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('wa_theme', 'dark');
+  }
+}
+
+function applyAppConfig() {
+  document.getElementById('pageTitle').textContent = APP_CONFIG.pageTitle;
+  document.getElementById('welcomeGroupName').textContent = APP_CONFIG.groupName;
+  document.getElementById('callGroupName').textContent = APP_CONFIG.groupName;
+  document.getElementById('infoGroupName').textContent = APP_CONFIG.groupName;
+  document.getElementById('mainGroupName').textContent = APP_CONFIG.groupName;
+
+  const setAvatar = (id, avatar) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (avatar.length <= 2) {
+      el.textContent = avatar;
+    } else {
+      el.innerHTML = `<img src="${avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.outerHTML='🎭'" />`;
+    }
+  };
+  setAvatar('welcomeLogo', APP_CONFIG.groupAvatar);
+  setAvatar('callAvatar', APP_CONFIG.groupAvatar);
+  setAvatar('infoAvatar', APP_CONFIG.groupAvatar);
+  setAvatar('mainAvatar', APP_CONFIG.groupAvatar);
+
+  const bannerEl = document.querySelector('.info-banner');
+  if (bannerEl && APP_CONFIG.groupBanner) {
+    bannerEl.style.backgroundImage = `url('${APP_CONFIG.groupBanner}')`;
+    bannerEl.style.backgroundSize = 'cover';
+    bannerEl.style.backgroundPosition = 'center';
+  }
+
+  const descEl = document.getElementById('configGroupDescription');
+  if (descEl) {
+    descEl.innerHTML = APP_CONFIG.groupDescription;
+  }
+  
+  const postersEl = document.getElementById('configEventPosters');
+  if (postersEl) {
+    postersEl.innerHTML = APP_CONFIG.eventPosters.map(p => `
+      <div style="cursor:pointer; text-align:center; min-width:100px;" onclick="openImage('${p.src}')">
+        <div style="width:100px; height:100px; background-image:url('${p.src}'); background-size:cover; background-position:center; border-radius:8px; margin-bottom:4px;"></div>
+        <span style="font-size:12px; color:var(--wa-text);">${p.label}</span>
+      </div>
+    `).join('');
+  }
+
+  const scheduleEl = document.getElementById('configSchedule');
+  if (scheduleEl) {
+    scheduleEl.innerHTML = APP_CONFIG.schedule.map(s => `
+      <div style="display: flex; gap: 12px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border);">
+        <div style="font-weight: 700; color: #00a884; min-width: 48px;">${s.time}</div>
+        <div style="color: var(--wa-text);">${s.text}</div>
+      </div>
+    `).join('');
+  }
+
+  const locationEl = document.getElementById('configLocation');
+  if (locationEl) {
+    locationEl.innerHTML = `
+      <a href="${APP_CONFIG.location.link}" target="_blank" class="location-link">
+        <span class="location-icon">📍</span>
+        <span>Lihat Lokasi di Maps →</span>
+      </a>
+      <p style="color:var(--wa-text);">${APP_CONFIG.location.text}</p>
+    `;
+  }
+
+  const rulesEl = document.getElementById('configRules');
+  if (rulesEl) {
+    rulesEl.innerHTML = APP_CONFIG.rules.map(r => `<li style="margin-bottom:6px;">${r}</li>`).join('');
+  }
+}
+
+function renderStaticMessages() {
+  const chatArea = document.getElementById('chatArea');
+  const loader = document.getElementById('chatLoader');
+  
+  APP_CONFIG.staticMessages.forEach(msg => {
+    const wrap = document.createElement('div');
+    wrap.className = `bubble-wrap admin-static ${msg.isOwn ? 'out' : 'in'}`;
+    
+    let nameHtml = '';
+    if (!msg.isOwn) {
+      nameHtml = `<div class="bubble-name" style="color: ${msg.color}; font-weight:800;">${msg.sender}</div>`;
+    }
+    
+    const tickHtml = msg.isOwn ? `<span class="bubble-tick"><svg viewBox="0 0 16 15" width="16" height="15" fill="currentColor"><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"/></svg></span>` : "";
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.innerHTML = `
+      ${msg.content}
+      <div class="bubble-meta">
+        <span class="bubble-time">${msg.time}</span>
+        ${tickHtml}
+      </div>
+    `;
+    
+    if (nameHtml) wrap.innerHTML += nameHtml;
+    wrap.appendChild(bubble);
+    chatArea.insertBefore(wrap, loader);
+  });
+}
+
+// Initialization
+document.addEventListener("DOMContentLoaded", () => {
+  const savedTheme = localStorage.getItem('wa_theme');
+  if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+
+  applyAppConfig();
+  renderStaticMessages();
+
+  const savedUser = localStorage.getItem("ps_username_v2");
+  if (savedUser) {
+    currentUser = savedUser;
+    document.getElementById("nameModal").classList.add("hidden");
+    document.getElementById("app").classList.remove("hidden");
+    initChat();
+  }
+
+  // Scroll listener for unread badge
+  const chat = document.getElementById("chatArea");
+  chat.addEventListener("scroll", () => {
+    const btn = document.getElementById("scrollBtn");
+    const distFromBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight;
+    if (distFromBottom > 150) {
+      btn.classList.remove("hidden");
+    } else {
+      btn.classList.add("hidden");
+      unreadCount = 0;
+      updateUnreadBadge();
+    }
+  });
+});
+
+function joinChat() {
+  const input = document.getElementById("nameInput");
+  const name = input.value.trim();
+  if (!name) {
+    input.parentElement.style.animation = "shake 0.3s";
+    setTimeout(() => input.parentElement.style.animation = "", 300);
+    return;
+  }
+  
+  currentUser = escapeHtml(name);
+  localStorage.setItem("ps_username_v2", currentUser);
+  
+  document.getElementById("nameModal").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  initChat();
+}
+
+function leaveGroup() {
+  localStorage.removeItem("ps_username_v2");
+  window.location.reload();
+}
+
+/* ====================================================================
+   🔥 FIREBASE SDK IMPLEMENTATION (Like v1) 🔥
+==================================================================== */
+function initChat() {
+  if (window.firebaseReady) {
+    startListening();
+  } else {
+    window.addEventListener('firebaseReady', startListening);
+  }
+}
+
+function startListening() {
+  const loader = document.getElementById('chatLoader');
+  const q = window._query(window._ref, window._limitToLast(MSG_LIMIT));
+
+  window._onChildAdded(q, (snapshot) => {
+    if (loader) loader.remove();
+
+    const msg = snapshot.val();
+    const isOwn = msg.name === currentUser;
+    appendBubble(msg, isOwn);
+
+    const chat = document.getElementById('chatArea');
+    const distFromBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight;
+    if (distFromBottom < 150 || isOwn) {
+      scrollToBottom();
+    } else {
+      unreadCount++;
+      updateUnreadBadge();
+    }
+  });
+
+  simulateOnlineCount();
+}
+
+function sendMessage() {
+  if (!currentUser) return;
+  const input = document.getElementById('msgInput');
+  const text  = input.value.trim();
+  if (!text) { 
+    input.parentElement.style.animation = "shake 0.3s";
+    setTimeout(() => input.parentElement.style.animation = "", 300);
+    return; 
+  }
+
+  const now = Date.now();
+  if (now - lastSendTime < SEND_DELAY_MS) {
+    showToast(`⏳ Tunggu ${Math.ceil((SEND_DELAY_MS - (now - lastSendTime)) / 1000)}s`);
+    return;
+  }
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+
+  const payload = {
+    name:      currentUser,
+    message:   escapeHtml(text),
+    timestamp: window._serverTimestamp(),
+    isAdmin:   false
+  };
+
+  if (replyingTo) {
+    payload.replyTo = replyingTo;
+  }
+
+  window._push(window._ref, payload).then(() => {
+    input.value = '';
+    lastSendTime = Date.now();
+    closeEmojiPicker();
+    cancelReply();
+    
+    const popup = document.getElementById('commandPopup');
+    if (popup) popup.classList.add('hidden');
+
+    const matchedCommand = APP_CONFIG.botCommands.find(c => text.toLowerCase().includes(c.command.toLowerCase()));
+    if (matchedCommand) {
+      setTimeout(() => {
+        window._push(window._ref, {
+          name: "Panitia",
+          message: matchedCommand.reply,
+          timestamp: window._serverTimestamp(),
+          isAdmin: false,
+          color: "#E91E63"
+        });
+      }, 1000);
+    }
+  }).catch(err => {
+    showToast('❌ Gagal kirim. Coba lagi.');
+    console.error(err);
+  }).finally(() => {
+    setTimeout(() => { btn.disabled = false; input.focus(); }, SEND_DELAY_MS);
+  });
+}
+
+/* ====================================================================
+   UI RENDERING LOGIC
+==================================================================== */
+
+function appendBubble(msg, isOwn) {
+  const chatArea = document.getElementById("chatArea");
+  
+  // Use Date.now() fallback if serverTimestamp hasn't resolved locally
+  const msgTime = msg.timestamp || Date.now();
+  const msgDate = new Date(msgTime);
+  const dateLabel = formatDate(msgDate);
+  const timeStr = formatTime(msgDate);
+
+  if (dateLabel !== lastDateLabel) {
+    lastDateLabel = dateLabel;
+    const divider = document.createElement("div");
+    divider.className = "date-divider";
+    divider.innerHTML = `<span>${dateLabel}</span>`;
+    chatArea.appendChild(divider);
+  }
+
+  if (msg.isAdmin) {
+    const sys = document.createElement("div");
+    sys.className = "bubble-system";
+    sys.innerHTML = `🛡️ <strong>Sistem</strong>: ${msg.message}`;
+    chatArea.appendChild(sys);
+    return;
+  }
+
+  const wrap = document.createElement("div");
+  wrap.className = `bubble-wrap ${isOwn ? "out" : "in"}`;
+  wrap.dataset.msgText = msg.message;
+
+  let nameHtml = "";
+  if (!isOwn) {
+    const color = msg.color || hashColor(msg.name);
+    nameHtml = `<div class="bubble-name" style="color: ${color}">${msg.name}</div>`;
+  }
+
+  let replyHtml = '';
+  if (msg.replyTo) {
+    replyHtml = `
+      <div class="quoted-msg">
+        <div class="quoted-name">${escapeHtml(msg.replyTo.name)}</div>
+        <div class="quoted-text">${msg.replyTo.text}</div>
+      </div>
+    `;
+  }
+
+  const tickHtml = isOwn ? `<span class="bubble-tick"><svg viewBox="0 0 16 15" width="16" height="15" fill="currentColor"><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"/></svg></span>` : "";
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = `
+    ${replyHtml}
+    <div class="message-text">${msg.message}</div>
+    <div class="bubble-meta">
+      <span class="bubble-time">${timeStr}</span>
+      ${tickHtml}
+    </div>
+  `;
+
+  // Tambahkan dropdown reply untuk semua pesan (bukan admin static)
+  if (!wrap.classList.contains('admin-static')) {
+    const dropdown = document.createElement('div');
+    dropdown.className = 'bubble-dropdown';
+    dropdown.innerHTML = `
+      <button class="bubble-dropdown-btn" onclick="toggleBubbleDropdown(this)">⋮</button>
+      <div class="bubble-dropdown-list">
+        <button onclick="replyToMessageDropdown(this)">Reply</button>
+      </div>
+    `;
+    bubble.appendChild(dropdown);
+  }
+
+  wrap.innerHTML = nameHtml;
+  wrap.appendChild(bubble);
+
+  chatArea.appendChild(wrap);
+}
+
+// Dropdown reply logic
+window.toggleBubbleDropdown = function(btn) {
+  const list = btn.nextElementSibling;
+  document.querySelectorAll('.bubble-dropdown-list.show').forEach(el => {
+    if (el !== list) el.classList.remove('show');
+  });
+  list.classList.toggle('show');
+  
+  // Close on click outside
+  setTimeout(() => {
+    function close(e) {
+      if (!list.contains(e.target) && e.target !== btn) {
+        list.classList.remove('show');
+        document.removeEventListener('mousedown', close);
+      }
+    }
+    document.addEventListener('mousedown', close);
+  }, 10);
+};
+
+window.replyToMessageDropdown = function(btn) {
+  const bubbleWrap = btn.closest('.bubble-wrap');
+  replyToBubble(bubbleWrap);
+  btn.closest('.bubble-dropdown-list').classList.remove('show');
+};
+
+function scrollToBottom() {
+  const chat = document.getElementById("chatArea");
+  chat.scrollTop = chat.scrollHeight;
+  unreadCount = 0;
+  updateUnreadBadge();
+}
+
+function updateUnreadBadge() {
+  const badge = document.getElementById("unreadBadge");
+  if (unreadCount > 0) {
+    badge.textContent = unreadCount > 9 ? "9+" : unreadCount;
+    badge.classList.remove("hidden");
+  } else {
+    badge.classList.add("hidden");
+  }
+}
+
+/* ============================
+   SWIPE TO REPLY LOGIC
+   ============================ */
+let swipeStartX = 0;
+let swipeCurrentX = 0;
+let isSwiping = false;
+let swipedBubble = null;
+let replyIndicator = null;
+
+function handleDragStart(e, clientX) {
+  const bubble = e.target.closest('.bubble-wrap');
+  if (!bubble || bubble.classList.contains('admin-static')) return;
+  if (e.target.tagName === 'IMG' || e.target.tagName === 'BUTTON') return;
+
+  swipedBubble = bubble;
+  swipeStartX = clientX;
+  swipeCurrentX = clientX;
+  isSwiping = true;
+  swipedBubble.style.transition = 'none';
+  
+  replyIndicator = document.createElement('div');
+  replyIndicator.innerHTML = '↩️';
+  replyIndicator.style.position = 'absolute';
+  replyIndicator.style.left = '-30px';
+  replyIndicator.style.top = '50%';
+  replyIndicator.style.transform = 'translateY(-50%) scale(0)';
+  replyIndicator.style.transition = 'transform 0.1s, opacity 0.1s';
+  replyIndicator.style.opacity = '0';
+  replyIndicator.style.background = 'rgba(255,255,255,0.9)';
+  replyIndicator.style.borderRadius = '50%';
+  replyIndicator.style.width = '24px';
+  replyIndicator.style.height = '24px';
+  replyIndicator.style.display = 'flex';
+  replyIndicator.style.alignItems = 'center';
+  replyIndicator.style.justifyContent = 'center';
+  replyIndicator.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)';
+  replyIndicator.style.fontSize = '12px';
+  replyIndicator.style.zIndex = '10';
+  swipedBubble.style.position = 'relative';
+  swipedBubble.appendChild(replyIndicator);
+}
+
+function handleDragMove(e, clientX) {
+  if (!isSwiping || !swipedBubble) return;
+  swipeCurrentX = clientX;
+  const diff = swipeCurrentX - swipeStartX;
+  
+  if (diff > 0 && diff < 80) {
+    swipedBubble.style.transform = `translateX(${diff}px)`;
+    if (replyIndicator) {
+      const progress = Math.min(diff / 50, 1);
+      replyIndicator.style.transform = `translateY(-50%) scale(${progress})`;
+      replyIndicator.style.opacity = progress;
+    }
+  }
+}
+
+function handleDragEnd(e) {
+  if (!isSwiping || !swipedBubble) return;
+  const diff = swipeCurrentX - swipeStartX;
+  
+  swipedBubble.style.transition = 'transform 0.2s ease-out';
+  swipedBubble.style.transform = 'translateX(0)';
+  
+  if (replyIndicator) {
+    replyIndicator.remove();
+    replyIndicator = null;
+  }
+  
+  if (diff > 50) {
+    replyToBubble(swipedBubble);
+  }
+  
+  isSwiping = false;
+  swipedBubble = null;
+}
+
+const chatAreaEl = document.getElementById('chatArea');
+if(chatAreaEl) {
+  chatAreaEl.addEventListener('touchstart', (e) => handleDragStart(e, e.touches[0].clientX), { passive: true });
+  chatAreaEl.addEventListener('touchmove', (e) => handleDragMove(e, e.touches[0].clientX), { passive: true });
+  chatAreaEl.addEventListener('touchend', handleDragEnd);
+
+  chatAreaEl.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    handleDragStart(e, e.clientX);
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (isSwiping) handleDragMove(e, e.clientX);
+  });
+  document.addEventListener('mouseup', (e) => {
+    if (isSwiping) handleDragEnd(e);
+  });
+}
+
+function replyToBubble(bubbleWrap) {
+  const senderName = bubbleWrap.querySelector('.bubble-name')?.textContent || 'Someone';
+  const messageText = bubbleWrap.dataset.msgText || bubbleWrap.querySelector('.message-text')?.innerText || bubbleWrap.querySelector('.bubble').innerText.split('\n')[0];
+  
+  replyingTo = { name: senderName, text: messageText };
+  
+  document.getElementById('replyPreviewName').textContent = senderName;
+  document.getElementById('replyPreviewText').textContent = messageText;
+  document.getElementById('replyPreviewBar').classList.remove('hidden');
+  
+  const input = document.getElementById('msgInput');
+  input.focus();
+}
+
+window.cancelReply = function() {
+  replyingTo = null;
+  document.getElementById('replyPreviewBar').classList.add('hidden');
+}
+
+/* ============================
+   BOT COMMANDS
+   ============================ */
+window.checkCommand = function(val) {
+  const popup = document.getElementById('commandPopup');
+  if (!popup) return;
+  
+  if (val.startsWith('@')) {
+    const search = val.toLowerCase();
+    const matches = APP_CONFIG.botCommands.filter(c => c.command.toLowerCase().startsWith(search));
+    
+    if (matches.length > 0) {
+      popup.innerHTML = matches.map(c => `
+        <div style="padding:10px 12px; border-bottom:1px solid var(--glass-border); cursor:pointer; color:var(--wa-text);" onclick="selectCommand('${c.command}')">
+          <div style="font-weight:600; color:#00a884; font-size:14px;">${c.command}</div>
+          <div style="font-size:12px; opacity:0.8;">${c.description}</div>
+        </div>
+      `).join('');
+      popup.classList.remove('hidden');
+    } else {
+      popup.classList.add('hidden');
+    }
+  } else {
+    popup.classList.add('hidden');
+  }
+};
+
+window.selectCommand = function(cmd) {
+  const input = document.getElementById('msgInput');
+  if (!input) return;
+  input.value = cmd + ' ';
+  document.getElementById('commandPopup').classList.add('hidden');
+  input.focus();
+  window.checkCommand(input.value);
+};
+
+
+/* ============================
+   IMAGE VIEWER MODAL
+   ============================ */
+window.openImage = function(src) {
+  let viewer = document.getElementById('imageViewer');
+  if (!viewer) {
+    viewer = document.createElement('div');
+    viewer.id = 'imageViewer';
+    viewer.className = 'modal-overlay';
+    viewer.style.zIndex = '9999';
+    viewer.innerHTML = `
+      <div style="position:relative; width:90%; max-width:500px; animation: modalIn 0.3s ease-out;">
+        <button style="position:absolute; top:-40px; right:0; background:none; border:none; color:#fff; font-size:28px; cursor:pointer;" onclick="closeImageViewer()">✕</button>
+        <img id="viewerImage" src="" style="width:100%; border-radius:12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
+      </div>
+    `;
+    document.body.appendChild(viewer);
+    
+    viewer.addEventListener('click', (e) => {
+      if (e.target === viewer) closeImageViewer();
+    });
+  }
+  
+  document.getElementById('viewerImage').src = src;
+  viewer.classList.remove('hidden');
+};
+
+window.closeImageViewer = function() {
+  document.getElementById('imageViewer').classList.add('hidden');
+};
+
+
+function openInfo() {
+  const panel = document.getElementById("infoPanel");
+  panel.classList.remove("hidden"); // ensure display:flex via hidden override
+  requestAnimationFrame(() => panel.classList.add("open"));
+}
+function closeInfo() {
+  const panel = document.getElementById("infoPanel");
+  panel.classList.remove("open");
+  // don't add hidden: keep panel in DOM with transform for animation
+}
+
+window.changeProfilePic = function() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        localStorage.setItem('group_profile_pic', ev.target.result);
+        const profilePic = document.querySelector('.group-profile-pic');
+        if(profilePic) {
+          profilePic.style.backgroundImage = `url(${ev.target.result})`;
+          profilePic.style.backgroundSize = 'cover';
+          profilePic.style.backgroundPosition = 'center';
+          const emoji = profilePic.querySelector('.profile-pic-emoji');
+          if(emoji) emoji.style.display = 'none';
+        }
+        showToast('✅ Foto profil grup diganti!');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  input.click();
+};
+
+/* Call Simulation */
+let voiceAudio = null;
+let audioCtx = null;
+let beepInterval = null;
+
+function playBeep() {
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let count = 0;
+    beepInterval = setInterval(() => {
+      if (count++ > 10) { clearInterval(beepInterval); return; }
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.value = 420;
+      gain.gain.setValueAtTime(.25, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .4);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + .4);
+    }, 700);
+  } catch(e) {}
+}
+
+function stopBeep() {
+  clearInterval(beepInterval);
+  if (audioCtx) { audioCtx.close(); audioCtx = null; }
+}
+
+window.startCall = function() {
+  document.getElementById("callModal").classList.remove("hidden");
+  document.getElementById("callStatus").textContent = `Memanggil...`;
+  
+  playBeep();
+  
+  clearTimeout(callTimer);
+  callTimer = setTimeout(() => {
+    stopBeep();
+    document.getElementById("callStatus").textContent = "Terhubung (00:01)";
+    document.getElementById("callStatus").style.color = "#25D366";
+    
+    if (APP_CONFIG.voiceCallAudio) {
+      if (!voiceAudio) {
+        voiceAudio = new Audio(APP_CONFIG.voiceCallAudio);
+        voiceAudio.loop = true;
+      }
+      voiceAudio.currentTime = 0;
+      voiceAudio.play().catch(e => console.warn('Autoplay blocked:', e));
+    }
+  }, 3000);
+};
+
+window.endCall = function() {
+  clearTimeout(callTimer);
+  document.getElementById("callModal").classList.add("hidden");
+  document.getElementById("callStatus").style.color = "";
+  stopBeep();
+  if (voiceAudio) {
+    voiceAudio.pause();
+    voiceAudio.currentTime = 0;
+  }
+  showToast("📵 Panggilan diakhiri");
+};
+
+window.startVideoCall = function() {
+  document.getElementById("videoModal").classList.remove("hidden");
+  const vid = document.getElementById('videoPlayer');
+  if(vid) vid.play().catch(() => {});
+};
+
+window.endVideoCall = function() {
+  document.getElementById("videoModal").classList.add("hidden");
+  const vid = document.getElementById('videoPlayer');
+  if(vid) vid.pause();
+  showToast("📵 Video call diakhiri");
+};
+
+/* Emoji */
+function toggleEmojiPicker() {
+  document.getElementById("emojiPicker").classList.toggle("open");
+}
+function closeEmojiPicker() {
+  document.getElementById("emojiPicker").classList.remove("open");
+}
+function insertEmoji(emoji) {
+  const input = document.getElementById("msgInput");
+  input.value += emoji;
+  input.focus();
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.emoji-btn') && !e.target.closest('.emoji-picker')) {
+    closeEmojiPicker();
+  }
+});
+
+/* Utils */
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function formatTime(date) {
+  if(isNaN(date.getTime())) return "";
+  return date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+}
+
+function formatDate(date) {
+  if(isNaN(date.getTime())) return "";
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  if (date.toDateString() === today.toDateString()) return "Hari ini";
+  if (date.toDateString() === yesterday.toDateString()) return "Kemarin";
+  return date.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+}
+
+const NAME_COLORS = ['#00a884','#e53935','#d81b60','#8e24aa','#3949ab','#039be5','#00897b','#43a047','#f4511e'];
+function hashColor(name) {
+  if(!name) return NAME_COLORS[0];
+  let h = 0;
+  for(let i=0; i<name.length; i++) h = name.charCodeAt(i) + ((h<<5)-h);
+  return NAME_COLORS[Math.abs(h) % NAME_COLORS.length];
+}
+
+function simulateOnlineCount() {
+  const el = document.getElementById("onlineCount");
+  setInterval(() => {
+    el.textContent = `734 peserta • ${Math.floor(Math.random()*40)+300} online`;
+  }, 10000);
+  el.textContent = `734 peserta • 312 online`;
+}
+
+function showToast(msg) {
+  let toast = document.querySelector(".toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.className = "toast";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => toast.classList.remove("show"), 3000);
+}

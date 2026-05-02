@@ -16,17 +16,17 @@ const MSG_LIMIT     = 100;    // pesan terakhir
 /* ---- CONFIGURATION ---- */
 const APP_CONFIG = {
   groupName: "Drama Arena 5101",
-  groupAvatar: "assets/poster-acara-1.jpg", // Menggunakan poster sebagai avatar default
-  groupBanner: "assets/poster-acara-1.jpg", // Background untuk bagian atas Info Grup
+  groupAvatar: "assets/logo.png", // Menggunakan poster sebagai avatar default
+  groupBanner: "assets/2.jpg", // Background untuk bagian atas Info Grup
   pageTitle: "Drama Arena 5101 – Grup WhatsApp",
-  
+
   // -- PENGATURAN INFO GRUP --
   groupDescription: "Selamat datang di grup resmi Drama Arena 5101! Di sini kamu bisa mengirim ucapan, berbagi momen, dan menyaksikan keseruan acara bersama. Mari saling mendukung para penampil! 🎉",
   eventPosters: [
-    { src: 'assets/poster-acara-1.jpg', label: 'Drama' },
-    { src: 'assets/poster-acara-2.jpg', label: 'Paduan Suara' },
-    { src: 'assets/poster-acara-3.jpg', label: 'Tari' },
-    { src: 'assets/poster-acara-4.jpg', label: 'Band' }
+    { src: 'assets/3.jpg', label: 'Drama' },
+    { src: 'assets/4.jpg', label: 'Paduan Suara' },
+    { src: 'assets/5.jpg', label: 'Tari' },
+    { src: 'assets/6.jpg', label: 'Band' }
   ],
   schedule: [
     { time: "07.00", text: "Registrasi & Pembukaan" },
@@ -71,11 +71,11 @@ const APP_CONFIG = {
     { sender: "Panitia", color: "#E91E63", time: "08.00", content: "Selamat datang di grup resmi Drama Arena 5101! Di sini kamu bisa sharing info, tanya-tanya, dan dukung para penampil! 🔥" },
     { sender: "Panitia", color: "#E91E63", time: "08.01", content: `📍 Lokasi acara: <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" class="welcome-link">Lihat di Google Maps</a>` },
     { sender: "Panitia", color: "#E91E63", time: "08.01", content: `🖼️ Berikut poster acara Drama Arena 5101:` },
-    { sender: "Panitia", color: "#E91E63", time: "08.01", content: `<img src="assets/poster-acara-1.jpg" alt="Poster Drama" class="chat-poster-img" onclick="openImage(this.src)">` },
-    { sender: "Panitia", color: "#E91E63", time: "08.01", content: `<img src="assets/poster-acara-2.jpg" alt="Poster Paduan Suara" class="chat-poster-img" onclick="openImage(this.src)">` },
-    { sender: "Panitia", color: "#E91E63", time: "08.01", content: `<img src="assets/poster-acara-3.jpg" alt="Poster Tari" class="chat-poster-img" onclick="openImage(this.src)">` },
-    { sender: "Panitia", color: "#E91E63", time: "08.01", content: `<img src="assets/poster-acara-4.jpg" alt="Poster Band" class="chat-poster-img" onclick="openImage(this.src)">` },
-    { sender: "Andi", color: "#2196F3", time: "08.02", content: "Min, ada link guide booknya gk? Biar kita bisa prepare sebelum hari H 🎯", isOwn: true },
+    { sender: "Panitia", color: "#E91E63", time: "08.01", content: `<img src="assets/1.jpg" alt="Poster Drama" class="chat-poster-img" onclick="openImage(this.src)">` },
+    { sender: "Panitia", color: "#E91E63", time: "08.01", content: `<img src="assets/2.jpg" alt="Poster Paduan Suara" class="chat-poster-img" onclick="openImage(this.src)">` },
+    { sender: "Panitia", color: "#E91E63", time: "08.01", content: `<img src="assets/3.jpg" alt="Poster Tari" class="chat-poster-img" onclick="openImage(this.src)">` },
+    { sender: "Panitia", color: "#E91E63", time: "08.01", content: `<img src="assets/4.jpg" alt="Poster Band" class="chat-poster-img" onclick="openImage(this.src)">` },
+    { sender: "", color: "#2196F3", time: "08.02", content: "Min, ada link guide booknya gk? Biar kita bisa prepare sebelum hari H 🎯", isOwn: true },
     { sender: "Panitia", color: "#E91E63", time: "08.02", content: `📚 Guide Book: <a href="assets/guide-book.pdf" target="_blank" class="welcome-link">Download di sini</a>` },
     { sender: "Panitia", color: "#E91E63", time: "08.03", content: "Yuk saling kenalan, share pengalaman, dan ramaikan chat ini! 🎉" }
   ]
