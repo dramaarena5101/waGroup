@@ -12,6 +12,7 @@ let unreadCount   = 0;
 let lastDateLabel = '';
 let callTimer     = null;
 let replyingTo    = null; // { name, text, id }
+const notifSound  = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
 
 const SEND_DELAY_MS = 2000;   // anti-spam
 const MSG_LIMIT     = 100;    // pesan terakhir
@@ -275,12 +276,12 @@ function renderStaticMessages() {
 
 // Initialization
 document.addEventListener("DOMContentLoaded", () => {
-  // Default DARK MODE — simpan 'light' di localStorage untuk pakai light mode
+  // Default LIGHT MODE — simpan 'dark' di localStorage untuk pakai dark mode
   const savedTheme = localStorage.getItem('wa_theme');
-  if (savedTheme === 'light') {
-    document.documentElement.removeAttribute('data-theme');
-  } else {
+  if (savedTheme === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
   }
 
   applyAppConfig();
@@ -405,6 +406,12 @@ function startListening() {
     const msg = snapshot.val();
     const isOwn = msg.name === currentUser;
     appendBubble(msg, isOwn);
+
+    // Play "ting" sound if message is from others
+    if (!isOwn) {
+      notifSound.currentTime = 0;
+      notifSound.play().catch(() => {});
+    }
 
     const chat = document.getElementById('chatArea');
     const distFromBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight;
@@ -866,8 +873,9 @@ window.startCall = function() {
     if (APP_CONFIG.voiceCallAudio) {
       if (!voiceAudio) {
         voiceAudio = new Audio(APP_CONFIG.voiceCallAudio);
-        voiceAudio.loop = true;
       }
+      voiceAudio.loop = false; // Disable loop to detect end
+      voiceAudio.onended = endCall; // Auto-end when finished
       voiceAudio.currentTime = 0;
       voiceAudio.play().catch(e => console.warn('Autoplay blocked:', e));
     }
@@ -876,24 +884,32 @@ window.startCall = function() {
 
 window.endCall = function() {
   clearTimeout(callTimer);
-  document.getElementById("callModal").classList.add("hidden");
-  document.getElementById("callStatus").style.color = "";
   stopBeep();
   if (voiceAudio) {
     voiceAudio.pause();
     voiceAudio.currentTime = 0;
   }
-  showToast("📵 Panggilan diakhiri");
+
+  // Animasi Call Ended
+  const statusEl = document.getElementById("callStatus");
+  statusEl.textContent = "Panggilan Berakhir";
+  statusEl.style.color = "#ff3b30";
+  
+  setTimeout(() => {
+    document.getElementById("callModal").classList.add("hidden");
+    statusEl.style.color = "";
+    showToast("📵 Panggilan diakhiri");
+  }, 1500);
 };
 
 window.startVideoCall = function() {
   document.getElementById("videoModal").classList.remove("hidden");
   const vid = document.getElementById('videoPlayer');
   if (vid) {
-    vid.muted = false; // unmute karena dipicu user gesture (klik tombol)
+    vid.muted = false; 
     vid.volume = 0.8;
+    vid.onended = endVideoCall; // Auto-end when video finished
     vid.play().catch(() => {
-      // fallback: kalau autoplay masih diblokir, tetap play dengan muted
       vid.muted = true;
       vid.play().catch(() => {});
     });
@@ -901,14 +917,28 @@ window.startVideoCall = function() {
 };
 
 window.endVideoCall = function() {
-  document.getElementById("videoModal").classList.add("hidden");
   const vid = document.getElementById('videoPlayer');
   if (vid) {
     vid.pause();
-    vid.muted = true; // kembalikan ke muted supaya autoplay tidak error lagi
+    vid.muted = true;
     vid.currentTime = 0;
   }
-  showToast("📵 Video call diakhiri");
+
+  // Animasi Call Ended
+  const statusEl = document.getElementById("videoCallerName");
+  if (statusEl) {
+    statusEl.textContent = "Panggilan Berakhir";
+    statusEl.parentElement.style.background = "#ff3b30";
+  }
+
+  setTimeout(() => {
+    document.getElementById("videoModal").classList.add("hidden");
+    if (statusEl) {
+      statusEl.textContent = "Drama Arena 5101 • Live";
+      statusEl.parentElement.style.background = "";
+    }
+    showToast("📵 Video call diakhiri");
+  }, 1500);
 };
 
 /* Emoji */

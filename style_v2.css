@@ -138,6 +138,28 @@ body {
   background: rgba(255, 255, 255, 0.1);
 }
 
+/* Pulse animation for call buttons */
+.call-pulse {
+  animation: pulse-notice 2s infinite;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+}
+
+@keyframes pulse-notice {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+  }
+  70% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
 .header-group-info {
   flex: 1;
   display: flex;
