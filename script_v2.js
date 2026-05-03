@@ -14,6 +14,9 @@ let callTimer     = null;
 let replyingTo    = null; // { name, text, id }
 const notifSound  = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
 
+// Helper to check if current device is admin
+const checkAdminStatus = () => isAdminUrl || localStorage.getItem('admin_device_trusted') === APP_CONFIG.adminSecretCode;
+
 const SEND_DELAY_MS = 2000;   // anti-spam
 const MSG_LIMIT     = 100;    // pesan terakhir
 
@@ -400,12 +403,19 @@ function startListening() {
   const loader = document.getElementById('chatLoader');
   const q = window._query(window._ref, window._limitToLast(MSG_LIMIT));
 
+  // Sembunyikan loader jika database kosong
+  window._get(q).then(snapshot => {
+    if (!snapshot.exists() && loader) {
+      loader.remove();
+    }
+  });
+
   window._onChildAdded(q, (snapshot) => {
     if (loader) loader.remove();
 
     const msg = snapshot.val();
     const isOwn = msg.name === currentUser;
-    appendBubble(msg, isOwn);
+    appendBubble(msg, isOwn, snapshot.key);
 
     // Play "ting" sound if message is from others
     if (!isOwn) {
@@ -420,6 +430,14 @@ function startListening() {
     } else {
       unreadCount++;
       updateUnreadBadge();
+    }
+  });
+
+  window._onChildRemoved(window._ref, (snapshot) => {
+    const el = document.querySelector(`[data-msg-id="${snapshot.key}"]`);
+    if (el) {
+      el.style.animation = "shake 0.3s";
+      setTimeout(() => el.remove(), 300);
     }
   });
 
@@ -458,6 +476,7 @@ function sendMessage() {
 
   window._push(window._ref, payload).then(() => {
     input.value = '';
+    input.style.height = 'auto'; // Reset tinggi textarea
     lastSendTime = Date.now();
     closeEmojiPicker();
     cancelReply();
@@ -485,11 +504,72 @@ function sendMessage() {
   });
 }
 
+window.handleCameraUpload = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Batasi 3 MB
+  if (file.size > 3 * 1024 * 1024) {
+    showToast('❌ Ukuran gambar maksimal 3 MB');
+    event.target.value = "";
+    return;
+  }
+
+  showToast('⏳ Mengirim gambar...');
+  
+  const fileName = `img_${Date.now()}.jpg`;
+  const storageRef = window._sRef(window._storage, `chat_images/${fileName}`);
+
+  window._uploadBytes(storageRef, file).then((snapshot) => {
+    return window._getDownloadURL(snapshot.ref);
+  }).then((url) => {
+    const payload = {
+      name:      currentUser,
+      message:   "📷 Foto",
+      imageUrl:  url,
+      type:      "image",
+      timestamp: window._serverTimestamp()
+    };
+    return window._push(window._ref, payload);
+  }).then(() => {
+    showToast('✅ Gambar terkirim!');
+    event.target.value = "";
+  }).catch(err => {
+    showToast('❌ Gagal upload. Coba lagi.');
+    console.error(err);
+  });
+};
+
+window.deleteMessage = function(key) {
+  const modal = document.getElementById('confirmModal');
+  const confirmBtn = document.getElementById('confirmDeleteBtn');
+  
+  modal.classList.remove('hidden');
+  
+  // Clean up previous event listeners
+  const newConfirmBtn = confirmBtn.cloneNode(true);
+  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+  
+  newConfirmBtn.onclick = () => {
+    window._remove(window._child(window._ref, key)).then(() => {
+      showToast('🗑️ Pesan dihapus');
+      closeConfirmModal();
+    }).catch(err => {
+      showToast('❌ Gagal menghapus');
+      console.error(err);
+    });
+  };
+};
+
+window.closeConfirmModal = function() {
+  document.getElementById('confirmModal').classList.add('hidden');
+};
+
 /* ====================================================================
    UI RENDERING LOGIC
 ==================================================================== */
 
-function appendBubble(msg, isOwn) {
+function appendBubble(msg, isOwn, key = null) {
   const chatArea = document.getElementById("chatArea");
   
   // Use Date.now() fallback if serverTimestamp hasn't resolved locally
@@ -517,6 +597,7 @@ function appendBubble(msg, isOwn) {
   const wrap = document.createElement("div");
   wrap.className = `bubble-wrap ${isOwn ? "out" : "in"}`;
   wrap.dataset.msgText = msg.message;
+  if (key) wrap.dataset.msgId = key;
 
   let nameHtml = "";
   if (!isOwn) {
@@ -536,11 +617,20 @@ function appendBubble(msg, isOwn) {
 
   const tickHtml = isOwn ? `<span class="bubble-tick"><svg viewBox="0 0 16 15" width="16" height="15" fill="currentColor"><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"/></svg></span>` : "";
 
+  let messageHtml = `<div class="message-text">${msg.message}</div>`;
+  if (msg.type === 'image') {
+    messageHtml = `
+      <div class="message-image" style="margin-top:4px;">
+        <img src="${msg.imageUrl}" style="width:100%; max-width:240px; border-radius:8px; cursor:pointer; display:block;" onclick="openImage(this.src)" />
+      </div>
+    `;
+  }
+
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
   bubble.innerHTML = `
     ${replyHtml}
-    <div class="message-text">${msg.message}</div>
+    ${messageHtml}
     <div class="bubble-meta">
       <span class="bubble-time">${timeStr}</span>
       ${tickHtml}
@@ -549,12 +639,20 @@ function appendBubble(msg, isOwn) {
 
   // Tambahkan dropdown reply untuk semua pesan (bukan admin static)
   if (!wrap.classList.contains('admin-static')) {
+    const isWhitelisted = checkAdminStatus();
+    let deleteBtnHtml = '';
+    
+    if (key && (isOwn || isWhitelisted)) {
+      deleteBtnHtml = `<button onclick="deleteMessage('${key}')" style="color:#ff4444; font-weight:600;"><span>🗑️</span> Hapus</button>`;
+    }
+
     const dropdown = document.createElement('div');
     dropdown.className = 'bubble-dropdown';
     dropdown.innerHTML = `
       <button class="bubble-dropdown-btn" onclick="toggleBubbleDropdown(this)">⋮</button>
       <div class="bubble-dropdown-list">
-        <button onclick="replyToMessageDropdown(this)">Reply</button>
+        <button onclick="replyToMessageDropdown(this)"><span>↩️</span> Reply</button>
+        ${deleteBtnHtml}
       </div>
     `;
     bubble.appendChild(dropdown);
@@ -1009,3 +1107,15 @@ function showToast(msg) {
   clearTimeout(toast._t);
   toast._t = setTimeout(() => toast.classList.remove("show"), 3000);
 }
+
+window.handleInput = function(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+  
+  // Jika melebihi batas (set di CSS max-height: 120px)
+  if (el.scrollHeight > 120) {
+    el.style.overflowY = 'auto';
+  } else {
+    el.style.overflowY = 'hidden';
+  }
+};

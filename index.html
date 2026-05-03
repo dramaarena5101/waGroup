@@ -33,8 +33,8 @@
       </div>
 
       <div class="input-wrapper">
-        <input type="text" id="nameInput" placeholder="Masukkan nama panggilanmu..." maxlength="30"
-          autocomplete="off" />
+        <textarea id="nameInput" placeholder="Masukkan nama panggilanmu..." maxlength="30"
+          autocomplete="off" rows="1"></textarea>
       </div>
       <button id="joinBtn" class="premium-btn" onclick="joinChat()">
         <span>Gabung Grup</span>
@@ -167,9 +167,23 @@
       </div>
 
       <div class="input-container">
-        <input type="text" id="msgInput" class="msg-input" placeholder="Ketik pesan..." autocomplete="off"
-          onkeydown="if(event.key==='Enter')sendMessage()" oninput="window.checkCommand(event.target.value)" />
+        <textarea id="msgInput" class="msg-input" placeholder="Ketik pesan..." autocomplete="off" rows="1"
+          oninput="handleInput(this); window.checkCommand(this.value)" 
+          onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMessage();}"></textarea>
       </div>
+
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;"
+        onchange="handleCameraUpload(event)" />
+      <button class="camera-btn" title="Ambil Foto" onclick="document.getElementById('cameraInput').click()">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" style="opacity: 0.6;">
+          <path
+            d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+            style="display:none;" />
+          <path
+            d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
+          <circle cx="12" cy="12" r="3.2" />
+        </svg>
+      </button>
 
       <button class="send-btn" id="sendBtn" onclick="sendMessage()">
         <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" style="transform: translateX(1px);">
@@ -337,11 +351,23 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
+  <div id="confirmModal" class="modal-overlay hidden" style="z-index: 10000;">
+    <div class="confirm-card">
+      <div class="confirm-icon">🗑️</div>
+      <h3>Hapus Pesan?</h3>
+      <p>Pesan ini akan dihapus untuk semua orang di grup ini.</p>
+      <div class="confirm-actions">
+        <button class="confirm-btn cancel" onclick="closeConfirmModal()">Batal</button>
+        <button class="confirm-btn delete" id="confirmDeleteBtn">Hapus</button>
+      </div>
+    </div>
+  </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, query, limitToLast, serverTimestamp, get }
+    import { getDatabase, ref, push, onChildAdded, onChildRemoved, query, limitToLast, serverTimestamp, get, remove, child }
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getStorage, ref as sRef, uploadBytes, getDownloadURL }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
     // ============================================================
     //  🔥 GANTI DENGAN CONFIG FIREBASE KAMU
@@ -360,14 +386,22 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const storage = getStorage(app);
     const messagesRef = ref(db, "messages");
 
     // expose to global
     window._db = db;
+    window._storage = storage;
     window._ref = messagesRef;
+    window._sRef = sRef;
+    window._uploadBytes = uploadBytes;
+    window._getDownloadURL = getDownloadURL;
     window._push = push;
+    window._remove = remove;
+    window._child = child;
     window._serverTimestamp = serverTimestamp;
     window._onChildAdded = onChildAdded;
+    window._onChildRemoved = onChildRemoved;
     window._query = query;
     window._limitToLast = limitToLast;
     window._get = get;

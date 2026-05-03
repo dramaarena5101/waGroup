@@ -483,17 +483,23 @@ body {
 .bubble-dropdown-list {
   display: none;
   position: absolute;
-  top: 22px;
+  top: 28px;
   right: 0;
   background: var(--wa-input-bg);
   border: 1px solid var(--glass-border);
-  border-radius: 8px;
-  box-shadow: var(--shadow-md);
-  min-width: 90px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  min-width: 120px;
   font-size: 14px;
   z-index: 1000;
   white-space: nowrap;
-  padding: 4px 0;
+  padding: 6px 0;
+  animation: slideDownIn 0.2s ease-out;
+}
+
+@keyframes slideDownIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .bubble-wrap.in .bubble-dropdown-list {
@@ -510,10 +516,19 @@ body {
   background: none;
   border: none;
   color: var(--wa-text);
-  padding: 8px 16px;
+  padding: 12px 20px;
   text-align: left;
   cursor: pointer;
   transition: background .13s;
+  font-family: inherit;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bubble-dropdown-list button:not(:last-child) {
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .bubble-dropdown-list button:hover {
@@ -619,25 +634,54 @@ body {
 .emoji-btn {
   background: transparent;
   border: none;
-  color: var(--wa-sub);
+  color: #ffffff; /* Putih agar kontras dengan header orange */
   padding: 8px;
   cursor: pointer;
   border-radius: 50%;
   display: flex;
+  flex-shrink: 0;
+  opacity: 0.9;
 }
 
 [data-theme="dark"] .emoji-btn {
   color: #8696a0;
 }
 
+.camera-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff; /* Putih agar kontras */
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+  opacity: 0.9;
+}
+
+.camera-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .camera-btn,
+[data-theme="dark"] .emoji-btn {
+  color: #e9edef;
+  opacity: 0.7;
+}
+
 .input-container {
   flex: 1;
   background: var(--wa-input-bg);
-  border-radius: 24px;
+  border-radius: 20px;
   display: flex;
-  align-items: center;
-  padding: 0 16px;
-  min-height: 44px;
+  align-items: flex-end;
+  padding: 4px 12px;
+  min-height: 40px;
+  max-height: 120px; /* Batasi tinggi maksimal */
+  overflow-y: auto;
 }
 
 .msg-input {
@@ -648,7 +692,10 @@ body {
   color: var(--wa-text);
   font-size: 15px;
   font-family: inherit;
-  padding: 12px 0;
+  padding: 8px 0;
+  resize: none;
+  line-height: 1.4;
+  overflow-y: hidden; /* Scroll dikontrol parent */
 }
 
 .send-btn {
@@ -658,6 +705,7 @@ body {
   background: var(--wa-accent);
   border: none;
   color: #fff;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -848,7 +896,7 @@ body {
   position: relative;
 }
 
-.input-wrapper input {
+.input-wrapper textarea {
   width: 100%;
   padding: 16px;
   border-radius: 12px;
@@ -860,13 +908,15 @@ body {
   transition: all 0.2s;
   text-align: center;
   font-weight: 500;
+  resize: none;
+  line-height: 1.5;
 }
 
-.input-wrapper input::placeholder {
+.input-wrapper textarea::placeholder {
   color: rgba(255, 255, 255, 0.6);
 }
 
-.input-wrapper input:focus {
+.input-wrapper textarea:focus {
   background: rgba(255, 255, 255, 0.25);
   border-color: #fff;
 }
@@ -1367,4 +1417,71 @@ body {
 .toast.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+}
+/* ---- CONFIRM MODAL ---- */
+.confirm-card {
+  background: var(--wa-input-bg);
+  padding: 32px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 320px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--glass-border);
+  animation: modalPop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.confirm-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+}
+
+.confirm-card h3 {
+  margin-bottom: 8px;
+  color: var(--wa-text);
+}
+
+.confirm-card p {
+  font-size: 14px;
+  color: var(--wa-sub);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.confirm-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirm-btn.cancel {
+  background: rgba(0,0,0,0.05);
+  color: var(--wa-text);
+}
+
+.confirm-btn.delete {
+  background: #ff3b30;
+  color: #fff;
+}
+
+.confirm-btn:hover {
+  filter: brightness(0.9);
+}
+
+.confirm-btn:active {
+  transform: scale(0.95);
 }
