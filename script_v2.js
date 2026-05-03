@@ -515,13 +515,16 @@ window.handleCameraUpload = function(event) {
     return;
   }
 
-  showToast('⏳ Mengirim gambar...');
+  showToast('⏳ Mengompres & Mengirim...');
   
-  const fileName = `img_${Date.now()}.jpg`;
-  const storageRef = window._sRef(window._storage, `chat_images/${fileName}`);
+  // Kompresi Gambar sebelum upload
+  compressImage(file, 0.8, 1280).then((compressedBlob) => {
+    const fileName = `img_${Date.now()}.jpg`;
+    const storageRef = window._sRef(window._storage, `chat_images/${fileName}`);
 
-  window._uploadBytes(storageRef, file).then((snapshot) => {
-    return window._getDownloadURL(snapshot.ref);
+    return window._uploadBytes(storageRef, compressedBlob).then((snapshot) => {
+      return window._getDownloadURL(snapshot.ref);
+    });
   }).then((url) => {
     const payload = {
       name:      currentUser,
@@ -539,6 +542,39 @@ window.handleCameraUpload = function(event) {
     console.error(err);
   });
 };
+
+function compressImage(file, quality, maxWidth) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = (maxWidth / width) * height;
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob) => {
+          resolve(blob);
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = reject;
+    };
+    reader.onerror = reject;
+  });
+}
 
 window.deleteMessage = function(key) {
   const modal = document.getElementById('confirmModal');
