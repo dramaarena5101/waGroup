@@ -488,11 +488,11 @@ function sendMessage() {
     if (matchedCommand) {
       setTimeout(() => {
         window._push(window._ref, {
-          name: "Panitia",
+          name: "Panitia Drama Arena 5101",
           message: matchedCommand.reply,
           timestamp: window._serverTimestamp(),
           isAdmin: false,
-          color: "#E91E63"
+          color: "#ff5500ff" // Matching official color
         });
       }, 1000);
     }
@@ -509,7 +509,7 @@ window.handleCameraUpload = function(event) {
   if (!file) return;
 
   // Batasi 3 MB
-  if (file.size > 3 * 1024 * 1024) {
+  if (file.size > 8 * 1024 * 1024) {
     showToast('❌ Ukuran gambar maksimal 3 MB');
     event.target.value = "";
     return;
@@ -890,6 +890,9 @@ window.selectCommand = function(cmd) {
   input.value = cmd + ' ';
   document.getElementById('commandPopup').classList.add('hidden');
   input.focus();
+  
+  // Update tinggi textarea & check command lagi
+  if (window.handleInput) window.handleInput(input);
   window.checkCommand(input.value);
 };
 
