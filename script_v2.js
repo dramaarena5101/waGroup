@@ -430,11 +430,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const savedUser = localStorage.getItem("ps_username_v2");
   if (savedUser) {
-    currentUser = savedUser; // set DULU
-    renderStaticMessages(); // baru render dengan nama yang benar
+    currentUser = savedUser; 
+    renderStaticMessages(); 
     document.getElementById("nameModal").classList.add("hidden");
     document.getElementById("app").classList.remove("hidden");
     initChat();
+    
+    // 🔥 NEW: Check if there's a pending call from previous refresh
+    if (sessionStorage.getItem('callStatus') === 'pending') {
+      setTimeout(showIncomingCall, 500); 
+    }
   }
 
   // Scroll listener for unread badge
@@ -487,7 +492,10 @@ function joinChat() {
   document.getElementById("nameModal").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
   initChat();
-  checkAutoCall();
+  
+  // 🔥 NEW: Trigger Call Immediately on Join
+  sessionStorage.setItem('callStatus', 'pending');
+  showIncomingCall();
 }
 
 // Tampilkan pesan error di modal join
@@ -1603,6 +1611,9 @@ function initSwipeUp() {
 }
 
 window.acceptIncomingCall = function() {
+  // 🔥 NEW: Clear call status
+  sessionStorage.setItem('callStatus', 'accepted');
+  
   const overlay = document.getElementById('incomingCallOverlay');
   if (overlay._ringtone) {
     overlay._ringtone.pause();

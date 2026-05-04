@@ -20,7 +20,7 @@
         <div class="modal-logo" id="welcomeLogo">🔥</div>
       </div>
       <h2 id="welcomeGroupName">Drama Arena 5101</h2>
-      <p class="join-creator" id="welcomeCreatorText">Official Group Invitation By Panitia</p>
+      <p class="join-creator" id="welcomeCreatorText">Official Grup Nobar DA5101</p>
 
       <div class="join-avatars" id="welcomeAvatars">
         <img src="assets/5.jpeg" onerror="this.src='https://ui-avatars.com/api/?name=User1&background=random'"
@@ -33,11 +33,11 @@
       </div>
 
       <div class="input-wrapper">
-        <textarea id="nameInput" placeholder="Masukkan nama panggilanmu..." maxlength="30"
-          autocomplete="off" rows="1"></textarea>
+        <textarea id="nameInput" placeholder="Masukkan nama panggilanmu..." maxlength="30" autocomplete="off"
+          rows="1"></textarea>
       </div>
       <button id="joinBtn" class="premium-btn" onclick="joinChat()">
-        <span>Gabung Grup</span>
+        <span>Join Grup</span>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
           <path
             d="M5 13h11.17l-4.88 4.88c-.39.39-.39 1.03 0 1.42.39.39 1.02.39 1.41 0l6.59-6.59a.996.996 0 0 0 0-1.41l-6.58-6.6a.996.996 0 1 0-1.41 1.41L16.17 11H5c-.55 0-1 .45-1 1s.45 1 1 1z" />
@@ -168,11 +168,12 @@
 
       <div class="input-container">
         <textarea id="msgInput" class="msg-input" placeholder="Ketik pesan..." autocomplete="off" rows="1"
-          oninput="handleInput(this); window.checkCommand(this.value)" 
+          oninput="handleInput(this); window.checkCommand(this.value)"
           onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMessage();}"></textarea>
       </div>
 
-      <button class="emoji-btn" style="padding: 4px; margin-right: -4px;" onclick="sendReaction('🔥')" title="Kirim Api">
+      <button class="emoji-btn" style="padding: 4px; margin-right: -4px;" onclick="sendReaction('🔥')"
+        title="Kirim Api">
         <span style="font-size: 20px;">🔥</span>
       </button>
 
@@ -366,14 +367,17 @@
     <div class="swipe-to-accept" id="swipeAccept">
       <div class="swipe-icon-wrap">
         <svg viewBox="0 0 24 24" width="32" height="32" fill="white">
-          <path d="M12 11.17l-4.88 4.88c-.39.39-1.03.39-1.42 0a.996.996 0 0 1 0-1.41l5.59-5.59a.996.996 0 0 1 1.41 0l5.59 5.59c.39.39.39 1.03 0 1.42a.996.996 0 0 1-1.41 0L12 11.17z" />
-          <path d="M12 4.17l-4.88 4.88c-.39.39-1.03.39-1.42 0a.996.996 0 0 1 0-1.41l5.59-5.59a.996.996 0 0 1 1.41 0l5.59 5.59c.39.39.39 1.03 0 1.42a.996.996 0 0 1-1.41 0L12 4.17z" />
+          <path
+            d="M12 11.17l-4.88 4.88c-.39.39-1.03.39-1.42 0a.996.996 0 0 1 0-1.41l5.59-5.59a.996.996 0 0 1 1.41 0l5.59 5.59c.39.39.39 1.03 0 1.42a.996.996 0 0 1-1.41 0L12 11.17z" />
+          <path
+            d="M12 4.17l-4.88 4.88c-.39.39-1.03.39-1.42 0a.996.996 0 0 1 0-1.41l5.59-5.59a.996.996 0 0 1 1.41 0l5.59 5.59c.39.39.39 1.03 0 1.42a.996.996 0 0 1-1.41 0L12 4.17z" />
         </svg>
       </div>
       <span class="swipe-text">Geser ke atas untuk menerima</span>
       <button class="reject-call-btn" onclick="rejectIncomingCall()" title="Tolak">
         <svg viewBox="0 0 24 24" width="28" height="28" fill="white">
-          <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08a.952.952 0 0 1-.29-.7c0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z" />
+          <path
+            d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08a.952.952 0 0 1-.29-.7c0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z" />
         </svg>
       </button>
     </div>
