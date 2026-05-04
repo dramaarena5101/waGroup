@@ -48,14 +48,46 @@ const APP_CONFIG = {
     { src: 'assets/8.jpeg', label: 'Band' }
   ],
   schedule: [
-    { time: "07.00", text: "Registrasi & Pembukaan" },
-    { time: "08.00", text: "Sambutan Panitia & Doa" },
-    { time: "09.00", text: "Penampilan Paduan Suara" },
-    { time: "10.00", text: "Drama & Teater Kolosal" },
-    { time: "11.30", text: "Istirahat & Makan Siang" },
-    { time: "13.00", text: "Tari Tradisional & Modern" },
-    { time: "14.30", text: "Band & Akustik" },
-    { time: "16.00", text: "Pembagian Hadiah & Penutup" }
+    { time: "07.00", text: "Visual Testimoni “Semangat Al Akh Ku”" },
+    { time: "07.15", text: "Scandious Show" },
+    { time: "07.30", text: "Visual “Bayangkan Jika Kita Tidak Menyerah”" },
+    { time: "07.45", text: "Opening Nasyid “Cahaya Shifr”" },
+    { time: "08.00", text: "Visual Sapa MC" },
+    { time: "08.10", text: "Master of Ceremony" },
+    { time: "08.20", text: "Pembukaan oleh Qur’an" },
+    { time: "08.30", text: "Sambutan Ketua Drama Arena" },
+    { time: "08.45", text: "Sambutan Pimpinan Pondok Modern Darussalam Gontor" },
+    { time: "09.00", text: "Visual Tari Duri" },
+    { time: "09.15", text: "Grand Opening (Ost. DA 5101)" },
+    { time: "09.30", text: "Choir 5101" },
+    { time: "09.45", text: "Drama POV 1 – Bintang" },
+    { time: "10.00", text: "Tari" },
+    { time: "10.15", text: "Visual “Syukran Alhamdulillah”" },
+    { time: "10.30", text: "Visual POV 2 – Akta" },
+    { time: "10.45", text: "Hiburan" },
+    { time: "11.00", text: "Ya Maulaya (Mazka)" },
+    { time: "11.15", text: "Ya Maulaya (Nafa)" },
+    { time: "11.30", text: "Luda Ludu Wel" },
+    { time: "11.45", text: "Arjuna" },
+    { time: "12.00", text: "Black Mask Rhythm" },
+    { time: "12.15", text: "Tong Bascudera" },
+    { time: "12.30", text: "Drama POV 3 – Mudabbir" },
+    { time: "12.45", text: "Visual “Taqwa dan Amanah”" },
+    { time: "13.00", text: "5101 Band “Tangguh”" },
+    { time: "13.15", text: "Fashion Show" },
+    { time: "13.30", text: "Iklan “Temukan Makna Untuk Bersama”" },
+    { time: "13.45", text: "Tari Rateb Meuseukat" },
+    { time: "14.00", text: "Visual POV 4 – Aflah" },
+    { time: "14.15", text: "5101 Band “Melodi Tongkrongan”" },
+    { time: "14.30", text: "Drama POV 4 – Aflah" },
+    { time: "14.45", text: "Raqs Arabian" },
+    { time: "15.00", text: "Silent Dance" },
+    { time: "15.15", text: "Infinity Beatbox" },
+    { time: "15.30", text: "Catwalk" },
+    { time: "15.45", text: "Electric Six" },
+    { time: "16.00", text: "Hikaru Toki DA" },
+    { time: "16.15", text: "Drama POV 5 – Pilar" },
+    { time: "16.30", text: "Grand Closing “Api Perjuangan”" }
   ],
   location: {
     text: "Depan Gedung Aula Utama<br/>Pondok Modern Darussalam Gontor<br/>Ponorogo, Jawa Timur",
@@ -67,6 +99,16 @@ const APP_CONFIG = {
     "Kirim ucapan positif!",
     "Nikmati acaranya 🎊"
   ],
+
+  // ===================================================================
+  // 📞 PENGATURAN FAKE CALL OTOMATIS
+  // ===================================================================
+  autoCall: {
+    enabled: true,
+    delayMs: 30000, // 30 detik untuk percobaan
+    videoSrc: "assets/1.mp4", // Video berbeda untuk auto call
+    callerName: "Drama Arena 5101 Official"
+  },
 
   // ===================================================================
   // 🚫 NAMA YANG DILARANG — Cegah pengguna iseng pakai nama panitia
@@ -86,6 +128,13 @@ const APP_CONFIG = {
     "moderator",
     "mod",
     "official"
+  ],
+
+  // ===================================================================
+  // 🚫 KATA YANG DILARANG (PROFANITY FILTER)
+  // ===================================================================
+  bannedWords: [
+    "anjing", "babi", "monyet", "kunyuk", "bangsat", "brengsek", "kontol", "memek", "ngentot", "pentil", "perek", "jablay", "goblok", "tolol", "idiot", "bego", "sinting", "gendeng", "asu", "cok", "jancok", "ndasmu", "matamu", "pantek", "kimak", "itil", "lonte", "peler", "jembut", "setan", "iblis", "dajjal"
   ],
 
   // ===================================================================
@@ -190,7 +239,21 @@ function applyAppConfig() {
 
   const descEl = document.getElementById('configGroupDescription');
   if (descEl) {
-    descEl.innerHTML = APP_CONFIG.groupDescription;
+    descEl.innerHTML = `
+      <div class="expandable-container" id="descContainer" style="max-height: 60px;">
+        ${APP_CONFIG.groupDescription}
+      </div>
+      <button class="see-more-btn" id="descSeeMore" onclick="toggleExpand('descContainer', this)">Lihat selengkapnya</button>
+    `;
+    
+    // Hide button if content is short
+    setTimeout(() => {
+      const container = document.getElementById('descContainer');
+      if (container && container.scrollHeight <= 60) {
+        document.getElementById('descSeeMore').style.display = 'none';
+        container.style.maxHeight = 'none';
+      }
+    }, 100);
   }
   
   const postersEl = document.getElementById('configEventPosters');
@@ -205,12 +268,26 @@ function applyAppConfig() {
 
   const scheduleEl = document.getElementById('configSchedule');
   if (scheduleEl) {
-    scheduleEl.innerHTML = APP_CONFIG.schedule.map(s => `
-      <div style="display: flex; gap: 12px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border);">
-        <div style="font-weight: 700; color: #00a884; min-width: 48px;">${s.time}</div>
-        <div style="color: var(--wa-text);">${s.text}</div>
+    scheduleEl.innerHTML = `
+      <div class="expandable-container" id="scheduleContainer">
+        ${APP_CONFIG.schedule.map(s => `
+          <div style="display: flex; gap: 12px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border);">
+            <div style="font-weight: 700; color: #00a884; min-width: 48px;">${s.time}</div>
+            <div style="color: var(--wa-text);">${s.text}</div>
+          </div>
+        `).join('')}
       </div>
-    `).join('');
+      <button class="see-more-btn" id="scheduleSeeMore" onclick="toggleExpand('scheduleContainer', this)">Lihat selengkapnya</button>
+    `;
+
+    // Hide button if content is short
+    setTimeout(() => {
+      const container = document.getElementById('scheduleContainer');
+      if (container && container.scrollHeight <= 150) {
+        document.getElementById('scheduleSeeMore').style.display = 'none';
+        container.style.maxHeight = 'none';
+      }
+    }, 100);
   }
 
   const locationEl = document.getElementById('configLocation');
@@ -325,13 +402,14 @@ function joinChat() {
   // 🔑 Cek apakah device sudah terdaftar sebagai admin (whitelist)
   const isWhitelisted = isAdminUrl || localStorage.getItem('admin_device_trusted') === APP_CONFIG.adminSecretCode;
 
-  // 🚫 Cek nama yang dilarang (kecuali device admin)
+  // 🚫 Cek nama yang dilarang (kecuali device admin) menggunakan Normalisasi
   if (!isWhitelisted) {
-    const nameLower = name.toLowerCase().trim();
-    const isBanned = APP_CONFIG.bannedNames.some(banned =>
-      nameLower === banned.toLowerCase() ||
-      nameLower.startsWith(banned.toLowerCase())
-    );
+    const normalizedInput = normalizeText(name);
+    const isBanned = APP_CONFIG.bannedNames.some(banned => {
+      const normalizedBanned = normalizeText(banned);
+      // Cek apakah input mengandung kata yang dilarang setelah dinormalisasi
+      return normalizedInput.includes(normalizedBanned);
+    });
 
     if (isBanned) {
       showNameError(input, `❌ Nama "${name}" tidak diizinkan. Silakan gunakan nama aslimu.`);
@@ -347,6 +425,7 @@ function joinChat() {
   document.getElementById("nameModal").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
   initChat();
+  checkAutoCall();
 }
 
 // Tampilkan pesan error di modal join
@@ -431,6 +510,9 @@ function startListening() {
       unreadCount++;
       updateUnreadBadge();
     }
+
+    // ✨ Interactive Feature: Check for keywords to trigger reactions
+    if (msg.message) checkMessageKeywords(msg.message);
   });
 
   window._onChildRemoved(window._ref, (snapshot) => {
@@ -452,6 +534,21 @@ function sendMessage() {
     input.parentElement.style.animation = "shake 0.3s";
     setTimeout(() => input.parentElement.style.animation = "", 300);
     return; 
+  }
+
+  // 🚫 Check for Banned Words (Advanced)
+  const lowerText = text.toLowerCase();
+  const normalizedText = normalizeText(text);
+  const hasBannedWord = APP_CONFIG.bannedWords.some(word => {
+    const normalizedBanned = normalizeText(word);
+    return lowerText.includes(word.toLowerCase()) || normalizedText.includes(normalizedBanned);
+  });
+  
+  if (hasBannedWord) {
+    showToast("⚠️ Dijaga dong ketikannya!");
+    input.value = ""; 
+    input.style.height = 'auto';
+    return;
   }
 
   const now = Date.now();
@@ -1147,6 +1244,36 @@ function showToast(msg) {
   toast._t = setTimeout(() => toast.classList.remove("show"), 3000);
 }
 
+/* ---- TEXT NORMALIZATION (For Banned Words) ---- */
+function normalizeText(text) {
+  let normalized = text.toLowerCase();
+  
+  // 1. Map symbols/numbers to letters (Leetspeak)
+  const map = {
+    '4': 'a', '@': 'a',
+    '3': 'e',
+    '1': 'i', '!': 'i',
+    '0': 'o',
+    '5': 's', '$': 's',
+    '7': 't',
+    '8': 'b',
+    'v': 'u',
+    '9': 'g'
+  };
+  
+  normalized = normalized.split('').map(char => map[char] || char).join('');
+  
+  // 2. Remove non-alphanumeric characters (dots, spaces, symbols between letters)
+  normalized = normalized.replace(/[^a-z0-9]/g, '');
+  
+  // 3. Collapse repeated characters (e.g., "annnnjjing" -> "anjing")
+  // Note: This might cause false positives for some normal words, 
+  // but it's very effective for profanity.
+  normalized = normalized.replace(/(.)\1+/g, '$1');
+  
+  return normalized;
+}
+
 window.handleInput = function(el) {
   el.style.height = 'auto';
   el.style.height = el.scrollHeight + 'px';
@@ -1157,4 +1284,178 @@ window.handleInput = function(el) {
   } else {
     el.style.overflowY = 'hidden';
   }
+};
+
+/* ---- INTERACTIVE REACTIONS ---- */
+window.sendReaction = function(emoji) {
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => createFloatingEmoji(emoji), i * 100);
+  }
+  
+  // Optional: Send to Firebase so others see it (if you want it to be real-time)
+  // For now, keep it local for instant feedback
+};
+
+function createFloatingEmoji(emoji) {
+  const el = document.createElement('div');
+  el.className = 'floating-emoji';
+  el.textContent = emoji;
+  
+  // Randomize position slightly
+  const randomX = Math.floor(Math.random() * 100) - 50;
+  el.style.right = (50 + randomX) + 'px';
+  
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2000);
+}
+
+function checkMessageKeywords(text) {
+  const normalizedText = normalizeText(text);
+  const reactions = {
+    '🔥': ['menyala', 'api', 'hot', 'jos', 'keren'],
+    '🎉': ['selamat', 'congrats', 'party', 'mantap', 'hore'],
+    '❤️': ['love', 'sayang', 'cinta', 'suka', 'heart'],
+    '👏': ['hebat', 'pintar', 'tangan', 'salut', 'wow']
+  };
+
+  for (const [emoji, keywords] of Object.entries(reactions)) {
+    if (keywords.some(k => {
+      const normalizedK = normalizeText(k);
+      return normalizedText.includes(normalizedK);
+    })) {
+      window.sendReaction(emoji);
+      break; 
+    }
+  }
+}
+
+/* ---- AUTO CALL LOGIC ---- */
+let autoCallTimer = null;
+let swipeStartY = 0;
+let isSwipingUp = false;
+
+function checkAutoCall() {
+  if (!APP_CONFIG.autoCall.enabled) return;
+  
+  // Reset timer if already exists
+  if (autoCallTimer) clearTimeout(autoCallTimer);
+  
+  autoCallTimer = setTimeout(() => {
+    showIncomingCall();
+  }, APP_CONFIG.autoCall.delayMs);
+}
+
+function showIncomingCall() {
+  const overlay = document.getElementById('incomingCallOverlay');
+  if (!overlay) return;
+  
+  document.getElementById('incomingCallName').textContent = APP_CONFIG.autoCall.callerName;
+  const avatarEl = document.getElementById('incomingCallAvatar');
+  if (APP_CONFIG.groupAvatar.length <= 2) {
+    avatarEl.textContent = APP_CONFIG.groupAvatar;
+  } else {
+    avatarEl.innerHTML = `<img src="${APP_CONFIG.groupAvatar}" class="avatar-img-auto" />`;
+  }
+  
+  overlay.classList.remove('hidden');
+  
+  // Play ringtone (Simple "ting ting")
+  const tingSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+  tingSound.loop = true;
+  overlay._ringtone = tingSound;
+  tingSound.play().catch(() => {});
+  
+  initSwipeUp();
+}
+
+function initSwipeUp() {
+  const swipeArea = document.getElementById('swipeAccept');
+  if (!swipeArea) return;
+  
+  const handleStart = (y) => {
+    swipeStartY = y;
+    isSwipingUp = true;
+  };
+  
+  const handleMove = (y) => {
+    if (!isSwipingUp) return;
+    const diff = swipeStartY - y;
+    if (diff > 0) {
+      // Swipe up effect
+      const overlay = document.getElementById('incomingCallOverlay');
+      overlay.style.transform = `translateY(-${diff}px)`;
+      overlay.style.opacity = 1 - (diff / 500);
+    }
+  };
+  
+  const handleEnd = (y) => {
+    if (!isSwipingUp) return;
+    const diff = swipeStartY - y;
+    const overlay = document.getElementById('incomingCallOverlay');
+    
+    if (diff > 150) {
+      // Accept call
+      acceptIncomingCall();
+    } else {
+      // Snap back
+      overlay.style.transform = '';
+      overlay.style.opacity = '';
+    }
+    isSwipingUp = false;
+  };
+  
+  swipeArea.addEventListener('touchstart', (e) => handleStart(e.touches[0].clientY));
+  swipeArea.addEventListener('touchmove', (e) => handleMove(e.touches[0].clientY));
+  swipeArea.addEventListener('touchend', (e) => handleEnd(e.changedTouches[0].clientY));
+  
+  swipeArea.addEventListener('mousedown', (e) => handleStart(e.clientY));
+  window.addEventListener('mousemove', (e) => handleMove(e.clientY));
+  window.addEventListener('mouseup', (e) => handleEnd(e.clientY));
+}
+
+window.acceptIncomingCall = function() {
+  const overlay = document.getElementById('incomingCallOverlay');
+  if (overlay._ringtone) {
+    overlay._ringtone.pause();
+  }
+  overlay.classList.add('hidden');
+  overlay.style.transform = '';
+  overlay.style.opacity = '';
+  
+  // Start Video Call with specific video
+  const videoModal = document.getElementById('videoModal');
+  videoModal.classList.remove('hidden');
+  const vid = document.getElementById('videoPlayer');
+  if (vid) {
+    vid.src = APP_CONFIG.autoCall.videoSrc;
+    vid.muted = false;
+    vid.play().catch(() => {
+      vid.muted = true;
+      vid.play().catch(() => {});
+    });
+  }
+};
+
+window.rejectIncomingCall = function() {
+  const btn = document.querySelector('.reject-call-btn');
+  if (btn) {
+    btn.style.animation = 'shake 0.3s';
+    setTimeout(() => btn.style.animation = '', 300);
+    
+    // Move the button randomly to make it hard to press?
+    const randomX = Math.floor(Math.random() * 40) - 20;
+    const randomY = Math.floor(Math.random() * 40) - 20;
+    btn.style.transform = `translate(${randomX}px, ${randomY}px)`;
+  }
+  
+  showToast("Eits, harus dijawab dong! 🔥");
+};
+
+/* ---- EXPANDABLE CONTENT ---- */
+window.toggleExpand = function(id, btn) {
+  const container = document.getElementById(id);
+  if (!container) return;
+  
+  const isExpanded = container.classList.toggle('expanded');
+  btn.textContent = isExpanded ? 'Lihat sedikit' : 'Lihat selengkapnya';
 };
