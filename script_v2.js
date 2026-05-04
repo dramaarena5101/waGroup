@@ -93,6 +93,7 @@ const APP_CONFIG = {
     text: "Depan Gedung Aula Utama<br/>Pondok Modern Darussalam Gontor<br/>Ponorogo, Jawa Timur",
     link: "https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo"
   },
+
   rules: [
     "Sopan dan saling menghormati",
     "Dilarang spam / SARA",
@@ -171,64 +172,84 @@ const APP_CONFIG = {
   botCommands: [
     { 
       command: "@guidebook", 
+      keywords: ["guidebook", "buku panduan", "link download", "unduh"],
       description: "Dapatkan link Guide Book resmi", 
-      reply: `
-        <div class="rich-link-card">
-          <img src="guidebook_cover_v2.png" class="rich-link-image" alt="Guide Book Cover" />
-          <div class="rich-link-body">
-            <div class="rich-link-title">📚 Official Guide Book</div>
-            <div class="rich-link-desc">Pelajari jadwal, denah lokasi, dan profil penampil Drama Arena 5101 secara lengkap di sini.</div>
-            <a href="assets/guide-book.pdf" target="_blank" class="rich-link-btn">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-              Unduh Guide Book
-            </a>
-          </div>
-        </div>
-      `
+      reply: "DYNAMIC_GUIDEBOOK" // Use dynamic card
     },
 
     { 
       command: "@susunanacara", 
+      keywords: ["rundown", "jadwal", "susunan acara", "jam berapa", "kapan"],
       description: "Lihat rundown / susunan acara", 
       reply: "DYNAMIC_SCHEDULE" 
     },
 
-    { command: "@lokasi", description: "Lihat info lokasi acara", reply: "📍 Lokasi: Gedung Aula Utama, Pondok Modern Darussalam Gontor. <a href='https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo' target='_blank' style='color:#00a884;font-weight:bold;'>Buka di Google Maps</a>" }
+    { 
+      command: "@lokasi", 
+      keywords: ["lokasi", "tempat", "di mana", "dimana", "maps", "alamat"],
+      description: "Lihat info lokasi acara", 
+      reply: "DYNAMIC_LOCATION" 
+    }
   ],
 
   // -- PESAN STATIS AWAL --
 
   staticMessages: [
-    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.00", content: "Ahlan wa sahlan ust <b>{name}</b>! 🎉\n di grup resmi Drama Arena 5101! Di sini bisa sharing info, tanya-tanya, dan dukung para penampil! 🔥" },
+    // --- FLOW UNDANGAN DIGITAL (STATIC CONVERSATION) ---
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.00", content: "Assalamulaikum ustadz-ustadz sekalian... 🙏 <br><br>Undangan resmi dari kami untuk acara <b>Drama Arena 5101</b>. Yang tahun ini bermottokan: <br><i>'Nyalakan Api Kebersamaan, Wujudkan Idealisme Kehidupan'</i>. <br>InsyaAllah bakal seru dan meriah jangan sampai kelewatan ya ustadz-ustadzkuh!" },
+    
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `
+      <div class="message-image" style="margin-top:8px;">
+        <img src="official_poster_new.png" style="width:100%; max-width:260px; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor:pointer;" onclick="openImage(this.src)" alt="Official Poster DA 5101" />
+      </div>
+      <p style="margin-top:8px; font-size:12px; color:var(--wa-sub);">👆 Poster Resmi Drama Arena 5101</p>
+    ` },
 
-    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `In Syaa Allah Untuk📍Lokasi acara kami share location ust: <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" style="color:#00a884;font-weight:bold;">Lihat di Google Maps</a>` },
+    { sender: "", color: "#2196F3", time: "08.02", content: "MasyaAllah..., menyala 🔥🔥🔥 Ditunggu banget nih min! <br>Izin tanya, ada info detail acaranya gak? Kayak rundown atau denah lokasinya gitu biar kita bisa prepare?", isOwn: true },
 
-    { sender: "", color: "#2196F3", time: "08.02", content: "Boleh spil acara nanti gk min? 🧐", isOwn: true },
-
-    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `Wih... boleh banget dong ust! <br> Ahlan ust <b>{name}</b> poster acara Drama Arena 5101 <br> tapi spil dikit dulu yaa...ust 🙏` },
-
-    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `<img src="assets/6.jpeg" alt="Poster Drama" style="width:100%; border-radius:8px; cursor:pointer;" onclick="openImage(this.src)">` },
-
-    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `<img src="assets/5.jpeg" alt="Poster Drama" style="width:100%; border-radius:8px; cursor:pointer;" onclick="openImage(this.src)">` },
-
-    { sender: "", color: "#2196F3", time: "08.02", content: "Jos menyala 🔥Min, kalo link guide booknya ada gk? Biar kita bisa prepare sebelum nonton ", isOwn: true },
-
-    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.02", content: `
-      Alhamdulilah sudah ada nih ust <b>{name}</b> Guide Booknya bisa langsung dicek di bawah ya...😊
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.03", content: `
+      Ahlan ustadz <b>{name}</b>, tentu ada stadz! Ini kami kirimkan <b>Guide Book</b> resminya ya, di dalamnya sudah lengkap semua informasinya:
       <div class="rich-link-card">
         <img src="guidebook_cover_v2.png" class="rich-link-image" alt="Guide Book Cover" />
         <div class="rich-link-body">
           <div class="rich-link-title">📚 Guide Book DA 5101</div>
-          <div class="rich-link-desc">E-Book panduan lengkap untuk seluruh pengunjung Drama Arena 5101.</div>
+          <div class="rich-link-desc">E-Book panduan lengkap jadwal, denah, dan profil acara.</div>
           <a href="assets/guide-book.pdf" target="_blank" class="rich-link-btn">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-            Klik untuk Unduh
+            Buka Guide Book
           </a>
         </div>
       </div>
     ` },
-    
-    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.03", content: "Ahlan ustadz <b>{name}</b> bisa diramaikan grup ini ya, bisa share info dll 🎉 <br>sama nanti kalo butuh keperluan acara langsung tag mimin aja ya <br> Enjoy..." }
+
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.04", content: `
+      Dan untuk lokasinya, akan diadakan di depan <b>Gedung New BPPM</b> ya ustadz:
+      <div class="rich-link-card">
+        <div class="map-iframe-container" style="width:100%; height:180px; overflow:hidden;">
+          <iframe 
+            width="100%" 
+            height="100%" 
+            frameborder="0" 
+            scrolling="no" 
+            marginheight="0" 
+            marginwidth="0" 
+            src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d259.5220242225412!2d111.49846684187652!3d-7.928339409444317!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2sid!4v1777877847755!5m2!1sen!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+        <div class="rich-link-body">
+          <div class="rich-link-title">📍 Depan New BPPM Gontor</div>
+          <div class="rich-link-desc">Depan Gedung New BPPM, Pondok Modern Darussalam Gontor, Ponorogo.</div>
+          <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" class="rich-link-btn" style="background:#00a884;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            Gas Meluncur
+          </a>
+        </div>
+      </div>
+    ` },
+
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.05", content: "Ditunggu banget kehadirannya ya, ustadz! 🙏✨" },
+
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.06", content: "Semoga acara Drama Arena 5101 tahun ini berjalan lancar, sukses, dan memberikan kesan terbaik untuk kita semua. Aamiin ya Allah... 🤲🔥" }
   ]
 };
 
@@ -626,20 +647,54 @@ function sendMessage() {
     const popup = document.getElementById('commandPopup');
     if (popup) popup.classList.add('hidden');
 
+    // 🤖 SMART BOT LOGIC (Simulated AI)
     const normalizedInput = normalizeText(text);
-    const matchedCommand = APP_CONFIG.botCommands.find(c => {
-      const normalizedCmd = normalizeText(c.command);
-      return normalizedInput.includes(normalizedCmd);
-    });
+    
+    // 1. Cek Tag Persis (@guidebook, dll)
+    let matchedCommand = APP_CONFIG.botCommands.find(c => text.toLowerCase().includes(c.command.toLowerCase()));
+    
+    // 2. Cek Keywords (lokasi, jam berapa, dll)
+    if (!matchedCommand) {
+      matchedCommand = APP_CONFIG.botCommands.find(c => 
+        c.keywords.some(k => normalizedInput.includes(normalizeText(k)))
+      );
+    }
 
     if (matchedCommand) {
-      setTimeout(() => {
+      showBotTyping(() => {
         let finalReply = matchedCommand.reply;
         
-        // Handle Dynamic Schedule
+        // Handle Dynamic Responses
         if (finalReply === "DYNAMIC_SCHEDULE") {
           finalReply = "📅 <b>Susunan Acara Drama Arena 5101:</b><br/>" + 
                        APP_CONFIG.schedule.map(s => `• <b>${s.time}</b> - ${s.text}`).join('<br/>');
+        } else if (finalReply === "DYNAMIC_GUIDEBOOK") {
+          finalReply = `
+            <div class="rich-link-card">
+              <img src="guidebook_cover_v2.png" class="rich-link-image" alt="Guide Book Cover" />
+              <div class="rich-link-body">
+                <div class="rich-link-title">📚 Official Guide Book</div>
+                <div class="rich-link-desc">Pelajari jadwal, denah lokasi, dan profil penampil Drama Arena 5101 secara lengkap di sini.</div>
+                <a href="assets/guide-book.pdf" target="_blank" class="rich-link-btn">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                  Buka Guide Book
+                </a>
+              </div>
+            </div>
+          `;
+        } else if (finalReply === "DYNAMIC_LOCATION") {
+          finalReply = `
+            <div class="rich-link-card">
+              <div class="map-iframe-container" style="width:100%; height:180px; overflow:hidden;">
+                <iframe width="100%" height="100%" frameborder="0" scrolling="no" src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d259.5220242225412!2d111.49846684187652!3d-7.928339409444317!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2sid!4v1777877847755!5m2!1sen!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+              </div>
+              <div class="rich-link-body">
+                <div class="rich-link-title">📍 Depan New BPPM</div>
+                <div class="rich-link-desc">Pondok Modern Darussalam Gontor, Ponorogo.</div>
+                <a href="https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo" target="_blank" class="rich-link-btn" style="background:#00a884;">Gas Meluncur!</a>
+              </div>
+            </div>
+          `;
         }
 
         window._push(window._ref, {
@@ -649,7 +704,22 @@ function sendMessage() {
           isAdmin: false,
           color: "#ff5500ff"
         }).catch(e => console.error("Bot Reply Error:", e));
-      }, 1000);
+      });
+    } 
+    // 3. AI Small Talk (Halo, Syukron, dll)
+    else {
+      const aiReply = getSmartAIResponse(normalizedInput, text);
+      if (aiReply) {
+        showBotTyping(() => {
+          window._push(window._ref, {
+            name: "Panitia Drama Arena 5101",
+            message: aiReply,
+            timestamp: window._serverTimestamp(),
+            isAdmin: false,
+            color: "#ff5500ff"
+          });
+        }, 1500);
+      }
     }
   }).catch(err => {
     showToast('❌ Gagal kirim. Coba lagi.');
@@ -755,6 +825,56 @@ window.deleteMessage = function(key) {
 window.closeConfirmModal = function() {
   document.getElementById('confirmModal').classList.add('hidden');
 };
+
+/* ====================================================================
+   🤖 SMART AI ENGINE (Simulated)
+==================================================================== */
+
+function showBotTyping(callback, delay = 1500) {
+  const onlineEl = document.getElementById('onlineCount');
+  const originalText = onlineEl.textContent;
+  
+  onlineEl.textContent = "Panitia sedang mengetik...";
+  onlineEl.style.color = "var(--wa-accent)";
+  
+  setTimeout(() => {
+    onlineEl.textContent = originalText;
+    onlineEl.style.color = "";
+    callback();
+  }, delay);
+}
+
+function getSmartAIResponse(normalized, original) {
+  // 1. GREETINGS
+  if (normalized.includes("assalam")) return "Wa'alaikumussalam warahmatullah ustadz! 🙏 Ada yang bisa saya bantu terkait info Drama Arena 5101?";
+  if (normalized.includes("halo") || normalized.includes("hello") || normalized.includes("hai")) return "Halo ustadz! Selamat datang di grup resmi DA 5101. Silakan tanya apa saja ya! 😊";
+  if (normalized.includes("pagi")) return "Selamat pagi ustadz! Semangat untuk hari ini! 🔥";
+  if (normalized.includes("siang")) return "Selamat siang ustadz! Jangan lupa istirahat ya.";
+  if (normalized.includes("malam")) return "Selamat malam ustadz! Selamat beristirahat.";
+
+  // 2. APPRECIATION
+  if (normalized.includes("keren") || normalized.includes("mantap") || normalized.includes("jos") || normalized.includes("menyala")) {
+    return "MasyaAllah, syukron tadz! Doakan semoga acaranya nanti benar-benar menyala dan lancar jaya! 🔥🔥";
+  }
+  if (normalized.includes("syukron") || normalized.includes("makasih") || normalized.includes("terima kasih") || normalized.includes("jazakallah")) {
+    return "Afwan ustadz, sudah menjadi tugas kami melayani para tamu undangan dengan baik. 🙏✨";
+  }
+  if (normalized.includes("amiin") || normalized.includes("amin") || normalized.includes("insyaallah")) {
+    return "Aamiin ya Allah... Terima kasih banyak atas doanya ustadz! 🤲";
+  }
+
+  // 3. IDENTITY
+  if (normalized.includes("siapa kamu") || normalized.includes("nama kamu")) {
+    return "Saya adalah Asisten Digital Panitia Drama Arena 5101. Saya siap membantu ustadz 24 jam di grup ini! 🤖🎭";
+  }
+
+  // 4. FALLBACK (Jika memanggil admin)
+  if (normalized.includes("min") || normalized.includes("admin") || normalized.includes("panitia") || original.includes("@")) {
+    return "Waduh, kalau itu saya kurang tahu ustadz... 🙏 coba saya tanyakan ke Ketua Panitia dulu ya! Nanti saya kabari lagi.";
+  }
+
+  return null; // Tidak merespon jika obrolan tidak relevan
+}
 
 /* ====================================================================
    UI RENDERING LOGIC
