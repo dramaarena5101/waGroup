@@ -138,6 +138,14 @@ const APP_CONFIG = {
   ],
 
   // ===================================================================
+  // ✅ KATA YANG DIIZINKAN (WHITELIST)
+  //    Mencegah false positive (misal: "susunan" mengandung "asu")
+  // ===================================================================
+  whitelist: [
+    "susunan", "kasur", "masuk", "basuh", "basah", "asuransi", "pasukan", "asuh", "asli", "masalah"
+  ],
+
+  // ===================================================================
   // 🔑 KODE RAHASIA ADMIN — Device yang input kode ini diizinkan
   //    pakai nama apapun termasuk nama yang dilarang
   //    Ganti kode ini dengan kata sandi kamu sendiri!
@@ -161,9 +169,29 @@ const APP_CONFIG = {
 
   // -- PENGATURAN BOT KEYWORD --
   botCommands: [
-    { command: "@guidebook", description: "Dapatkan link Guide Book resmi", reply: "📚 Guide Book: <a href='assets/guide-book.pdf' target='_blank' style='color:#00a884;font-weight:bold;'>Download di sini</a>" },
+    { 
+      command: "@guidebook", 
+      description: "Dapatkan link Guide Book resmi", 
+      reply: `
+        <div class="rich-link-card">
+          <img src="guidebook_cover_v2.png" class="rich-link-image" alt="Guide Book Cover" />
+          <div class="rich-link-body">
+            <div class="rich-link-title">📚 Official Guide Book</div>
+            <div class="rich-link-desc">Pelajari jadwal, denah lokasi, dan profil penampil Drama Arena 5101 secara lengkap di sini.</div>
+            <a href="assets/guide-book.pdf" target="_blank" class="rich-link-btn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+              Unduh Guide Book
+            </a>
+          </div>
+        </div>
+      `
+    },
 
-    { command: "@susunanacara", description: "Lihat rundown / susunan acara", reply: "📅 <b>Susunan Acara:</b><br/>07.00 - Registrasi & Pembukaan<br/>08.00 - Sambutan Panitia & Doa<br/>09.00 - Penampilan Paduan Suara<br/>10.00 - Drama & Teater Kolosal<br/>11.30 - Istirahat & Makan Siang<br/>13.00 - Tari Tradisional & Modern<br/>14.30 - Band & Akustik<br/>16.00 - Pembagian Hadiah & Penutup" },
+    { 
+      command: "@susunanacara", 
+      description: "Lihat rundown / susunan acara", 
+      reply: "DYNAMIC_SCHEDULE" 
+    },
 
     { command: "@lokasi", description: "Lihat info lokasi acara", reply: "📍 Lokasi: Gedung Aula Utama, Pondok Modern Darussalam Gontor. <a href='https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo' target='_blank' style='color:#00a884;font-weight:bold;'>Buka di Google Maps</a>" }
   ],
@@ -185,7 +213,20 @@ const APP_CONFIG = {
 
     { sender: "", color: "#2196F3", time: "08.02", content: "Jos menyala 🔥Min, kalo link guide booknya ada gk? Biar kita bisa prepare sebelum nonton ", isOwn: true },
 
-    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.02", content: `Alhamdulilah sudah ada nih ust <b>{name}</b> Guide Booknya bisa  <a href="assets/guide-book.pdf" target="_blank" style="color:#00a884;font-weight:bold;">Unduh di sini</a> ya...😊` },
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.02", content: `
+      Alhamdulilah sudah ada nih ust <b>{name}</b> Guide Booknya bisa langsung dicek di bawah ya...😊
+      <div class="rich-link-card">
+        <img src="guidebook_cover_v2.png" class="rich-link-image" alt="Guide Book Cover" />
+        <div class="rich-link-body">
+          <div class="rich-link-title">📚 Guide Book DA 5101</div>
+          <div class="rich-link-desc">E-Book panduan lengkap untuk seluruh pengunjung Drama Arena 5101.</div>
+          <a href="assets/guide-book.pdf" target="_blank" class="rich-link-btn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            Klik untuk Unduh
+          </a>
+        </div>
+      </div>
+    ` },
     
     { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.03", content: "Ahlan ustadz <b>{name}</b> bisa diramaikan grup ini ya, bisa share info dll 🎉 <br>sama nanti kalo butuh keperluan acara langsung tag mimin aja ya <br> Enjoy..." }
   ]
@@ -539,7 +580,11 @@ function sendMessage() {
   // 🚫 Check for Banned Words (Advanced)
   const lowerText = text.toLowerCase();
   const normalizedText = normalizeText(text);
-  const hasBannedWord = APP_CONFIG.bannedWords.some(word => {
+  
+  // Cek apakah pesan mengandung kata di whitelist (abaikan filter jika iya)
+  const isWhitelisted = APP_CONFIG.whitelist.some(w => lowerText.includes(w.toLowerCase()));
+
+  const hasBannedWord = !isWhitelisted && APP_CONFIG.bannedWords.some(word => {
     const normalizedBanned = normalizeText(word);
     return lowerText.includes(word.toLowerCase()) || normalizedText.includes(normalizedBanned);
   });
@@ -581,16 +626,29 @@ function sendMessage() {
     const popup = document.getElementById('commandPopup');
     if (popup) popup.classList.add('hidden');
 
-    const matchedCommand = APP_CONFIG.botCommands.find(c => text.toLowerCase().includes(c.command.toLowerCase()));
+    const normalizedInput = normalizeText(text);
+    const matchedCommand = APP_CONFIG.botCommands.find(c => {
+      const normalizedCmd = normalizeText(c.command);
+      return normalizedInput.includes(normalizedCmd);
+    });
+
     if (matchedCommand) {
       setTimeout(() => {
+        let finalReply = matchedCommand.reply;
+        
+        // Handle Dynamic Schedule
+        if (finalReply === "DYNAMIC_SCHEDULE") {
+          finalReply = "📅 <b>Susunan Acara Drama Arena 5101:</b><br/>" + 
+                       APP_CONFIG.schedule.map(s => `• <b>${s.time}</b> - ${s.text}`).join('<br/>');
+        }
+
         window._push(window._ref, {
           name: "Panitia Drama Arena 5101",
-          message: matchedCommand.reply,
+          message: finalReply,
           timestamp: window._serverTimestamp(),
           isAdmin: false,
-          color: "#ff5500ff" // Matching official color
-        });
+          color: "#ff5500ff"
+        }).catch(e => console.error("Bot Reply Error:", e));
       }, 1000);
     }
   }).catch(err => {
@@ -800,16 +858,24 @@ function appendBubble(msg, isOwn, key = null) {
 // Dropdown reply logic
 window.toggleBubbleDropdown = function(btn) {
   const list = btn.nextElementSibling;
+  const currentWrap = btn.closest('.bubble-wrap');
+  
   document.querySelectorAll('.bubble-dropdown-list.show').forEach(el => {
-    if (el !== list) el.classList.remove('show');
+    if (el !== list) {
+      el.classList.remove('show');
+      el.closest('.bubble-wrap').style.zIndex = '';
+    }
   });
-  list.classList.toggle('show');
+  
+  const isShowing = list.classList.toggle('show');
+  currentWrap.style.zIndex = isShowing ? '100' : '';
   
   // Close on click outside
   setTimeout(() => {
     function close(e) {
       if (!list.contains(e.target) && e.target !== btn) {
         list.classList.remove('show');
+        currentWrap.style.zIndex = '';
         document.removeEventListener('mousedown', close);
       }
     }
@@ -820,7 +886,9 @@ window.toggleBubbleDropdown = function(btn) {
 window.replyToMessageDropdown = function(btn) {
   const bubbleWrap = btn.closest('.bubble-wrap');
   replyToBubble(bubbleWrap);
-  btn.closest('.bubble-dropdown-list').classList.remove('show');
+  const list = btn.closest('.bubble-dropdown-list');
+  list.classList.remove('show');
+  bubbleWrap.style.zIndex = '';
 };
 
 function scrollToBottom() {

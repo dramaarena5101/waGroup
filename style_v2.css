@@ -1650,3 +1650,68 @@ body {
 [data-theme="dark"] .expandable-container:not(.expanded)::after {
   background: linear-gradient(transparent, #202c33);
 }
+
+/* ---- RICH LINK CARD ---- */
+.rich-link-card {
+  background: var(--wa-input-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  margin: 8px 0;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: block;
+  text-decoration: none;
+  max-width: 260px;
+}
+
+.rich-link-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.rich-link-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.rich-link-body {
+  padding: 12px;
+}
+
+.rich-link-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--wa-accent);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rich-link-desc {
+  font-size: 12px;
+  color: var(--wa-sub);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.rich-link-btn {
+  background: var(--wa-accent);
+  color: #fff !important;
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+[data-theme="dark"] .rich-link-card {
+  background: #1a2329;
+}
