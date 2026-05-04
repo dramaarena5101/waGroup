@@ -90,7 +90,7 @@ const APP_CONFIG = {
     { time: "16.30", text: "Grand Closing “Api Perjuangan”" }
   ],
   location: {
-    text: "Depan Gedung Aula Utama<br/>Pondok Modern Darussalam Gontor<br/>Ponorogo, Jawa Timur",
+    text: "Depan Gedung New BPPM <br/>Pondok Modern Darussalam Gontor<br/>Ponorogo, Jawa Timur",
     link: "https://maps.google.com/?q=Gedung+Aula+Utama+Pondok+Modern+Darussalam+Gontor+Ponorogo"
   },
 
@@ -196,13 +196,13 @@ const APP_CONFIG = {
 
   staticMessages: [
     // --- FLOW UNDANGAN DIGITAL (STATIC CONVERSATION) ---
-    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.00", content: "Assalamulaikum ustadz-ustadz sekalian... 🙏 <br><br>Undangan resmi dari kami untuk acara <b>Drama Arena 5101</b>. Yang tahun ini bermottokan: <br><i>'Nyalakan Api Kebersamaan, Wujudkan Idealisme Kehidupan'</i>. <br>InsyaAllah bakal seru dan meriah jangan sampai kelewatan ya ustadz-ustadzkuh!" },
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.00", content: "Assalamulaikum ustadz-ustadz sekalian... 🙏 <br><br>Undangan resmi dari kami untuk antum sekalian dalam memeriahkan acara <b>Drama Arena 5101</b>. Yang bermottokan: <br><i>'Nyalakan Api Kebersamaan, Wujudkan Idealisme Kehidupan'</i>. <br>InsyaAllah bakal seru dan meriah jangan sampai kelewatan ya ustadz-ustadzkuh!" },
     
     { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `
       <div class="message-image" style="margin-top:8px;">
         <img src="official_poster_new.png" style="width:100%; max-width:260px; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor:pointer;" onclick="openImage(this.src)" alt="Official Poster DA 5101" />
       </div>
-      <p style="margin-top:8px; font-size:12px; color:var(--wa-sub);">👆 Poster Resmi Drama Arena 5101</p>
+      <p style="margin-top:8px; font-size:12px; color:var(--wa-sub);">👆 Poster Drama Arena 5101</p>
     ` },
 
     { sender: "", color: "#2196F3", time: "08.02", content: "MasyaAllah..., menyala 🔥🔥🔥 Ditunggu banget nih min! <br>Izin tanya, ada info detail acaranya gak? Kayak rundown atau denah lokasinya gitu biar kita bisa prepare?", isOwn: true },
@@ -247,7 +247,7 @@ const APP_CONFIG = {
       </div>
     ` },
 
-    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.05", content: "Ditunggu banget kehadirannya ya, ustadz! 🙏✨" },
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.05", content: "Ditunggu banget kehadirannya antum ya, ustadz-ustadzkuh! 🙏✨" },
 
     { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.06", content: "Semoga acara Drama Arena 5101 tahun ini berjalan lancar, sukses, dan memberikan kesan terbaik untuk kita semua. Aamiin ya Allah... 🤲🔥" }
   ]
@@ -846,11 +846,12 @@ function showBotTyping(callback, delay = 1500) {
 
 function getSmartAIResponse(normalized, original) {
   // 1. GREETINGS
-  if (normalized.includes("assalam")) return "Wa'alaikumussalam warahmatullah ustadz! 🙏 Ada yang bisa saya bantu terkait info Drama Arena 5101?";
+  if (normalized.includes("assalam") || normalized.includes("assalamu'alaikum") || normalized.includes("assalaamu'alaykum")||normalized.includes("asalamualaikum")) return "Wa'alaikumussalam warahmatullah ustadz! 🙏 Ada yang bisa saya bantu terkait info Drama Arena 5101?";
   if (normalized.includes("halo") || normalized.includes("hello") || normalized.includes("hai")) return "Halo ustadz! Selamat datang di grup resmi DA 5101. Silakan tanya apa saja ya! 😊";
   if (normalized.includes("pagi")) return "Selamat pagi ustadz! Semangat untuk hari ini! 🔥";
   if (normalized.includes("siang")) return "Selamat siang ustadz! Jangan lupa istirahat ya.";
   if (normalized.includes("malam")) return "Selamat malam ustadz! Selamat beristirahat.";
+  if (normalized.includes("izin") || normalized.includes("ijin ")||normalized.includes("izin ")||normalized.includes("izin join")||normalized.includes("izin...")) return "Ahlan ustadz!🔥🙏";
 
   // 2. APPRECIATION
   if (normalized.includes("keren") || normalized.includes("mantap") || normalized.includes("jos") || normalized.includes("menyala")) {
@@ -865,7 +866,7 @@ function getSmartAIResponse(normalized, original) {
 
   // 3. IDENTITY
   if (normalized.includes("siapa kamu") || normalized.includes("nama kamu")) {
-    return "Saya adalah Asisten Digital Panitia Drama Arena 5101. Saya siap membantu ustadz 24 jam di grup ini! 🤖🎭";
+    return "Saya adalah Asisten Digital Panitia Drama Arena 5101. Saya siap membantu ustadz 24 jam di grup ini! 🤖🔥";
   }
 
   // 4. FALLBACK (Jika memanggil admin)
