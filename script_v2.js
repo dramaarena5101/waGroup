@@ -196,7 +196,7 @@ const APP_CONFIG = {
 
   staticMessages: [
     // --- FLOW UNDANGAN DIGITAL (STATIC CONVERSATION) ---
-    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.00", content: "Assalamulaikum ustadz-ustadz sekalian... 🙏 <br><br>Undangan resmi dari kami untuk antum sekalian dalam memeriahkan acara <b>Drama Arena 5101</b>. Yang bermottokan: <br><i>'Nyalakan Api Kebersamaan, Wujudkan Idealisme Kehidupan'</i>. <br>InsyaAllah bakal seru dan meriah jangan sampai kelewatan ya ustadz-ustadzkuh!" },
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.00", content: "Assalamulaikum ustadz-ustadz sekalian... 🙏 <br><br>Undangan resmi dari kami untuk antum sekalian dalam memeriahkan acara <b>Drama Arena 5101</b>. Yang bermotokan: <br><i>'Nyalakan Api Kebersamaan, Wujudkan Idealisme Kehidupan'</i>. <br>InsyaAllah bakal seru dan meriah jangan sampai kelewatan ya ustadz-ustadzkuh!" },
     
     { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `
       <div class="message-image" style="margin-top:8px;">
