@@ -12,6 +12,7 @@ let unreadCount   = 0;
 let lastDateLabel = '';
 let callTimer     = null;
 let replyingTo    = null; // { name, text, id }
+let guidebookReleaseDate = null; // ISO String from Firebase
 const notifSound  = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
 
 // Helper to check if current device is admin
@@ -214,10 +215,10 @@ const APP_CONFIG = {
         <div class="rich-link-body">
           <div class="rich-link-title">📚 Guide Book DA 5101</div>
           <div class="rich-link-desc">E-Book panduan lengkap jadwal, denah, dan profil acara.</div>
-          <a href="assets/guide-book.pdf" target="_blank" class="rich-link-btn">
+          <button onclick="openGuidebook()" class="rich-link-btn">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
             Buka Guide Book
-          </a>
+          </button>
         </div>
       </div>
     ` },
@@ -469,17 +470,26 @@ function joinChat() {
   // 🔑 Cek apakah device sudah terdaftar sebagai admin (whitelist)
   const isWhitelisted = isAdminUrl || localStorage.getItem('admin_device_trusted') === APP_CONFIG.adminSecretCode;
 
-  // 🚫 Cek nama yang dilarang (kecuali device admin) menggunakan Normalisasi
+  // 🚫 Cek nama yang dilarang & kata kasar (kecuali device admin) menggunakan Normalisasi
   if (!isWhitelisted) {
     const normalizedInput = normalizeText(name);
-    const isBanned = APP_CONFIG.bannedNames.some(banned => {
+    
+    // 1. Cek Nama Panitia/Official
+    const isBannedName = APP_CONFIG.bannedNames.some(banned => {
       const normalizedBanned = normalizeText(banned);
-      // Cek apakah input mengandung kata yang dilarang setelah dinormalisasi
       return normalizedInput.includes(normalizedBanned);
     });
 
-    if (isBanned) {
-      showNameError(input, `❌ Nama "${name}" tidak diizinkan. Silakan gunakan nama aslimu.`);
+    // 2. Cek Kata Kasar/SARA
+    const isProfane = APP_CONFIG.bannedWords.some(word => {
+      const normalizedWord = normalizeText(word);
+      // Kecuali kata yang di-whitelist
+      if (APP_CONFIG.whitelist.some(w => normalizeText(w) === normalizedWord)) return false;
+      return normalizedInput.includes(normalizedWord);
+    });
+
+    if (isBannedName || isProfane) {
+      showNameError(input, `❌ Nama "${name}" tidak diizinkan. Silakan gunakan nama yang sopan.`);
       return;
     }
   }
@@ -593,6 +603,17 @@ function startListening() {
     }
   });
 
+  // ⚙️ Listen to Settings (Guidebook Timing)
+  const settingsRef = window._child(window._ref_func(window._db), "settings/guidebook");
+  window._onValue(settingsRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data && data.releaseDate) {
+      guidebookReleaseDate = data.releaseDate;
+      const input = document.getElementById('guidebookReleaseInput');
+      if (input) input.value = guidebookReleaseDate.slice(0, 16);
+    }
+  });
+
   simulateOnlineCount();
 }
 
@@ -683,10 +704,10 @@ function sendMessage() {
               <div class="rich-link-body">
                 <div class="rich-link-title">📚 Official Guide Book</div>
                 <div class="rich-link-desc">Pelajari jadwal, denah lokasi, dan profil penampil Drama Arena 5101 secara lengkap di sini.</div>
-                <a href="assets/guide-book.pdf" target="_blank" class="rich-link-btn">
+                <button onclick="openGuidebook()" class="rich-link-btn">
                   <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
                   Buka Guide Book
-                </a>
+                </button>
               </div>
             </div>
           `;
@@ -1227,6 +1248,12 @@ function openInfo() {
   const panel = document.getElementById("infoPanel");
   panel.classList.remove("hidden"); // ensure display:flex via hidden override
   requestAnimationFrame(() => panel.classList.add("open"));
+
+  // Check Admin UI
+  if (checkAdminStatus()) {
+    const adminSection = document.getElementById('adminSettingsSection');
+    if (adminSection) adminSection.classList.remove('hidden');
+  }
 }
 function closeInfo() {
   const panel = document.getElementById("infoPanel");
@@ -1658,4 +1685,64 @@ window.toggleExpand = function(id, btn) {
   
   const isExpanded = container.classList.toggle('expanded');
   btn.textContent = isExpanded ? 'Lihat sedikit' : 'Lihat selengkapnya';
+};
+
+/* ---- GUIDEBOOK LOGIC ---- */
+window.openGuidebook = function() {
+  const now = new Date();
+  const release = guidebookReleaseDate ? new Date(guidebookReleaseDate) : null;
+  
+  // If admin, always allow open
+  if (checkAdminStatus()) {
+    window.open('assets/guide-book.pdf', '_blank');
+    return;
+  }
+
+  if (release && now < release) {
+    const modal = document.getElementById('guidebookLockModal');
+    const msgEl = document.getElementById('guidebookLockMessage');
+    
+    // Calculate time remaining
+    const diffMs = release - now;
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    
+    let timeStr = "";
+    if (days > 0) timeStr = `${days} hari lagi`;
+    else if (hours > 0) timeStr = `${hours} jam lagi`;
+    else timeStr = "sebentar lagi";
+
+    msgEl.innerHTML = `Sabar ya ustadz! Guidebook baru bisa dibuka <b>${timeStr}</b> (saat hari H acara). <br><br>Waktu rilis: <b>${release.toLocaleString('id-ID')}</b>`;
+    
+    modal.classList.remove('hidden');
+  } else {
+    window.open('assets/guide-book.pdf', '_blank');
+  }
+};
+
+window.saveGuidebookSettings = function() {
+  const input = document.getElementById('guidebookReleaseInput');
+  const val = input.value;
+  if (!val) {
+    showToast("❌ Pilih tanggal & waktu dulu");
+    return;
+  }
+
+  showToast("⏳ Menyimpan ke Firebase...");
+
+  const settingsRef = window._child(window._ref_func(window._db), "settings/guidebook");
+  window._set(settingsRef, {
+    releaseDate: val,
+    updatedAt: window._serverTimestamp()
+  }).then(() => {
+    showToast("✅ Berhasil! Waktu rilis diperbarui.");
+  }).catch(e => {
+    console.error("Firebase Save Error:", e);
+    // Jika error permission denied
+    if (e.message.includes("permission_denied")) {
+      alert("❌ Gagal: Firebase Rules Anda menolak akses. \n\nSilakan buka Firebase Console > Realtime Database > Rules, lalu pastikan folder 'settings' diizinkan untuk ditulis.");
+    } else {
+      showToast("❌ Gagal simpan: " + e.message);
+    }
+  });
 };

@@ -1710,6 +1710,24 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  font-family: inherit;
+  transition: opacity 0.2s;
+}
+
+.rich-link-btn:hover {
+  opacity: 0.9;
+}
+
+.admin-only-ui {
+  border: 2px dashed var(--wa-accent) !important;
+  background: rgba(255, 85, 0, 0.05) !important;
+}
+
+[data-theme="dark"] .admin-only-ui {
+  background: rgba(255, 85, 0, 0.1) !important;
 }
 
 [data-theme="dark"] .rich-link-card {
