@@ -13,6 +13,7 @@ let lastDateLabel = '';
 let callTimer     = null;
 let replyingTo    = null; // { name, text, id }
 let guidebookReleaseDate = null; // ISO String from Firebase
+let DYNAMIC_CONFIG = null; // Live data from Firebase settings
 const notifSound  = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
 
 // Helper to check if current device is admin
@@ -267,16 +268,18 @@ function toggleTheme() {
 }
 
 function applyAppConfig() {
-  document.getElementById('pageTitle').textContent = APP_CONFIG.pageTitle;
+  const config = { ...APP_CONFIG, ...DYNAMIC_CONFIG };
+
+  document.getElementById('pageTitle').textContent = config.pageTitle;
   
   // Terapkan bentuk avatar (bulat/kotak)
-  const radius = APP_CONFIG.groupAvatarShape === 'circle' ? '50%' : '8px';
+  const radius = config.groupAvatarShape === 'circle' ? '50%' : '8px';
   document.documentElement.style.setProperty('--avatar-radius', radius);
 
-  document.getElementById('welcomeGroupName').textContent = APP_CONFIG.groupName;
-  document.getElementById('callGroupName').textContent = APP_CONFIG.groupName;
-  document.getElementById('infoGroupName').textContent = APP_CONFIG.groupName;
-  document.getElementById('mainGroupName').textContent = APP_CONFIG.groupName;
+  document.getElementById('welcomeGroupName').textContent = config.groupName;
+  document.getElementById('callGroupName').textContent = config.groupName;
+  document.getElementById('infoGroupName').textContent = config.groupName;
+  document.getElementById('mainGroupName').textContent = config.groupName;
 
   const setAvatar = (id, avatar) => {
     const el = document.getElementById(id);
@@ -304,7 +307,7 @@ function applyAppConfig() {
   if (descEl) {
     descEl.innerHTML = `
       <div class="expandable-container" id="descContainer" style="max-height: 60px;">
-        ${APP_CONFIG.groupDescription}
+        ${config.groupDescription}
       </div>
       <button class="see-more-btn" id="descSeeMore" onclick="toggleExpand('descContainer', this)">Lihat selengkapnya</button>
     `;
@@ -474,16 +477,23 @@ function joinChat() {
   if (!isWhitelisted) {
     const normalizedInput = normalizeText(name);
     
-    // 1. Cek Nama Panitia/Official
-    const isBannedName = APP_CONFIG.bannedNames.some(banned => {
+    // 1. Cek Nama Panitia/Official (Hardcoded + Dynamic)
+    const dynamicBannedNames = DYNAMIC_CONFIG && DYNAMIC_CONFIG.bannedNames ? DYNAMIC_CONFIG.bannedNames.split(',').map(s => s.trim()) : [];
+    const combinedBannedNames = [...APP_CONFIG.bannedNames, ...dynamicBannedNames];
+
+    const isBannedName = combinedBannedNames.some(banned => {
+      if (!banned) return false;
       const normalizedBanned = normalizeText(banned);
       return normalizedInput.includes(normalizedBanned);
     });
 
-    // 2. Cek Kata Kasar/SARA
-    const isProfane = APP_CONFIG.bannedWords.some(word => {
+    // 2. Cek Kata Kasar/SARA (Hardcoded + Dynamic)
+    const dynamicBannedWords = DYNAMIC_CONFIG && DYNAMIC_CONFIG.bannedWords ? DYNAMIC_CONFIG.bannedWords.split(',').map(s => s.trim()) : [];
+    const combinedBannedWords = [...APP_CONFIG.bannedWords, ...dynamicBannedWords];
+
+    const isProfane = combinedBannedWords.some(word => {
+      if (!word) return false;
       const normalizedWord = normalizeText(word);
-      // Kecuali kata yang di-whitelist
       if (APP_CONFIG.whitelist.some(w => normalizeText(w) === normalizedWord)) return false;
       return normalizedInput.includes(normalizedWord);
     });
@@ -603,15 +613,23 @@ function startListening() {
     }
   });
 
-  // ⚙️ Listen to Settings (Guidebook Timing)
-  const settingsRef = window._child(window._ref_func(window._db), "settings/guidebook");
+  // ⚙️ Listen to Settings (Universal Settings)
+  const settingsRef = window._child(window._ref_func(window._db), "settings");
   window._onValue(settingsRef, (snapshot) => {
     const data = snapshot.val();
-    if (data && data.releaseDate) {
-      guidebookReleaseDate = data.releaseDate;
+    if (!data) return;
+    
+    DYNAMIC_CONFIG = data; // store all settings
+
+    // 1. Update Guidebook Logic
+    if (data.guidebook && data.guidebook.releaseDate) {
+      guidebookReleaseDate = data.guidebook.releaseDate;
       const input = document.getElementById('guidebookReleaseInput');
       if (input) input.value = guidebookReleaseDate.slice(0, 16);
     }
+
+    // 2. Re-apply UI Config (Group Name, Desc, etc)
+    applyAppConfig();
   });
 
   simulateOnlineCount();
@@ -634,7 +652,11 @@ function sendMessage() {
   // Cek apakah pesan mengandung kata di whitelist (abaikan filter jika iya)
   const isWhitelisted = APP_CONFIG.whitelist.some(w => lowerText.includes(w.toLowerCase()));
 
-  const hasBannedWord = !isWhitelisted && APP_CONFIG.bannedWords.some(word => {
+  const dynamicBannedWords = DYNAMIC_CONFIG && DYNAMIC_CONFIG.bannedWords ? DYNAMIC_CONFIG.bannedWords.split(',').map(s => s.trim()) : [];
+  const combinedBannedWords = [...APP_CONFIG.bannedWords, ...dynamicBannedWords];
+
+  const hasBannedWord = !isWhitelisted && combinedBannedWords.some(word => {
+    if (!word) return false;
     const normalizedBanned = normalizeText(word);
     return lowerText.includes(word.toLowerCase()) || normalizedText.includes(normalizedBanned);
   });
@@ -666,7 +688,7 @@ function sendMessage() {
     payload.replyTo = replyingTo;
   }
 
-  window._push(window._ref, payload).then(() => {
+  window._push(window._ref, payload).then((snapshot) => {
     input.value = '';
     input.style.height = 'auto'; // Reset tinggi textarea
     lastSendTime = Date.now();
@@ -679,25 +701,45 @@ function sendMessage() {
     // 🤖 SMART BOT LOGIC (Simulated AI)
     const normalizedInput = normalizeText(text);
     
-    // 1. Cek Tag Persis (@guidebook, dll)
-    let matchedCommand = APP_CONFIG.botCommands.find(c => text.toLowerCase().includes(c.command.toLowerCase()));
+    // Parse Dynamic Commands from Firebase
+    let dynamicCommands = [];
+    if (DYNAMIC_CONFIG && DYNAMIC_CONFIG.botCommands) {
+      const lines = DYNAMIC_CONFIG.botCommands.split('\n');
+      lines.forEach(line => {
+        const parts = line.split('|');
+        if (parts.length >= 3) {
+          dynamicCommands.push({
+            command: parts[0].trim(),
+            keywords: parts[1].split(',').map(k => k.trim()),
+            reply: parts[2].trim()
+          });
+        }
+      });
+    }
+
+    // Gabungkan (Dinamis didahulukan agar bisa menimpa yang lama)
+    const combinedCommands = [...dynamicCommands, ...APP_CONFIG.botCommands];
     
-    // 2. Cek Keywords (lokasi, jam berapa, dll)
+    // 1. Cek Tag Persis (@guidebook, dll)
+    let matchedCommand = combinedCommands.find(c => text.toLowerCase().includes(c.command.toLowerCase()));
+    
+    // 2. Cek Keywords
     if (!matchedCommand) {
-      matchedCommand = APP_CONFIG.botCommands.find(c => 
+      matchedCommand = combinedCommands.find(c => 
         c.keywords.some(k => normalizedInput.includes(normalizeText(k)))
       );
     }
 
     if (matchedCommand) {
+      const triggerMsgId = snapshot.key; 
+      const triggerMsgText = text;
+      const triggerUserName = currentUser;
+
       showBotTyping(() => {
         let finalReply = matchedCommand.reply;
         
-        // Handle Dynamic Responses
-        if (finalReply === "DYNAMIC_SCHEDULE") {
-          finalReply = "📅 <b>Susunan Acara Drama Arena 5101:</b><br/>" + 
-                       APP_CONFIG.schedule.map(s => `• <b>${s.time}</b> - ${s.text}`).join('<br/>');
-        } else if (finalReply === "DYNAMIC_GUIDEBOOK") {
+        // --- LOGIKA TEMPLATE RICH UI (Special Tags) ---
+        if (finalReply.includes("[CARD_GUIDEBOOK]") || finalReply === "DYNAMIC_GUIDEBOOK") {
           finalReply = `
             <div class="rich-link-card">
               <img src="guidebook_cover_v2.png" class="rich-link-image" alt="Guide Book Cover" />
@@ -711,7 +753,8 @@ function sendMessage() {
               </div>
             </div>
           `;
-        } else if (finalReply === "DYNAMIC_LOCATION") {
+        } 
+        else if (finalReply.includes("[CARD_LOCATION]") || finalReply === "DYNAMIC_LOCATION") {
           finalReply = `
             <div class="rich-link-card">
               <div class="map-iframe-container" style="width:100%; height:180px; overflow:hidden;">
@@ -725,17 +768,26 @@ function sendMessage() {
             </div>
           `;
         }
+        else if (finalReply.includes("[LIST_SCHEDULE]") || finalReply === "DYNAMIC_SCHEDULE") {
+          finalReply = "📅 <b>Susunan Acara Drama Arena 5101:</b><br/><br/>" + 
+                       APP_CONFIG.schedule.map(s => `• <b>${s.time}</b> - ${s.text}`).join('<br/>');
+        }
 
         window._push(window._ref, {
           name: "Panitia Drama Arena 5101",
           message: finalReply,
           timestamp: window._serverTimestamp(),
           isAdmin: false,
-          color: "#ff5500ff"
+          color: "#ff5500ff",
+          replyTo: {
+            name: triggerUserName,
+            text: triggerMsgText.substring(0, 60) + (triggerMsgText.length > 60 ? "..." : ""),
+            id: triggerMsgId
+          }
         }).catch(e => console.error("Bot Reply Error:", e));
       });
     } 
-    // 3. AI Small Talk (Halo, Syukron, dll)
+    // 3. AI Small Talk
     else {
       const aiReply = getSmartAIResponse(normalizedInput, text);
       if (aiReply) {
@@ -745,7 +797,12 @@ function sendMessage() {
             message: aiReply,
             timestamp: window._serverTimestamp(),
             isAdmin: false,
-            color: "#ff5500ff"
+            color: "#ff5500ff",
+            replyTo: {
+              name: currentUser,
+              text: text.substring(0, 60) + (text.length > 60 ? "..." : ""),
+              id: snapshot.key
+            }
           });
         }, 1500);
       }
@@ -874,15 +931,30 @@ function showBotTyping(callback, delay = 1500) {
 }
 
 function getSmartAIResponse(normalized, original) {
-  // 1. GREETINGS
-  if (normalized.includes("assalam") || normalized.includes("assalamu'alaikum") || normalized.includes("assalaamu'alaykum")||normalized.includes("asalamualaikum")) return "Wa'alaikumussalam warahmatullah ustadz! 🙏 Ada yang bisa saya bantu terkait info Drama Arena 5101?";
+  // 1. DYNAMIC AI RESPONSES FROM FIREBASE
+  if (DYNAMIC_CONFIG && DYNAMIC_CONFIG.aiResponses) {
+    const lines = DYNAMIC_CONFIG.aiResponses.split('\n');
+    for (const line of lines) {
+      const parts = line.split('|');
+      if (parts.length >= 2) {
+        const keywords = parts[0].split(',').map(k => k.trim().toLowerCase());
+        const reply = parts[1].trim();
+        if (keywords.some(k => normalized.includes(k))) {
+          return reply;
+        }
+      }
+    }
+  }
+
+  // 2. HARDCODED GREETINGS (Fallback)
+  if (normalized.includes("assalam") || normalized.includes("assalamu'alaikum") || normalized.includes("asalamualaikum")) return "Wa'alaikumussalam warahmatullah ustadz! 🙏 Ada yang bisa saya bantu terkait info Drama Arena 5101?";
   if (normalized.includes("halo") || normalized.includes("hello") || normalized.includes("hai")) return "Halo ustadz! Selamat datang di grup resmi DA 5101. Silakan tanya apa saja ya! 😊";
   if (normalized.includes("pagi")) return "Selamat pagi ustadz! Semangat untuk hari ini! 🔥";
   if (normalized.includes("siang")) return "Selamat siang ustadz! Jangan lupa istirahat ya.";
   if (normalized.includes("malam")) return "Selamat malam ustadz! Selamat beristirahat.";
-  if (normalized.includes("izin") || normalized.includes("ijin ")||normalized.includes("izin ")||normalized.includes("izin join")||normalized.includes("izin...")) return "Ahlan ustadz!🔥🙏";
+  if (normalized.includes("izin") || normalized.includes("ijin")) return "Ahlan ustadz! 🔥🙏";
 
-  // 2. APPRECIATION
+  // 3. APPRECIATION
   if (normalized.includes("keren") || normalized.includes("mantap") || normalized.includes("jos") || normalized.includes("menyala")) {
     return "MasyaAllah, syukron tadz! Doakan semoga acaranya nanti benar-benar menyala dan lancar jaya! 🔥🔥";
   }
@@ -893,17 +965,17 @@ function getSmartAIResponse(normalized, original) {
     return "Aamiin ya Allah... Terima kasih banyak atas doanya ustadz! 🤲";
   }
 
-  // 3. IDENTITY
+  // 4. IDENTITY
   if (normalized.includes("siapa kamu") || normalized.includes("nama kamu")) {
     return "Saya adalah Asisten Digital Panitia Drama Arena 5101. Saya siap membantu ustadz 24 jam di grup ini! 🤖🔥";
   }
 
-  // 4. FALLBACK (Jika memanggil admin)
+  // 5. FALLBACK
   if (normalized.includes("min") || normalized.includes("admin") || normalized.includes("panitia") || original.includes("@")) {
     return "Waduh, kalau itu saya kurang tahu ustadz... 🙏 coba saya tanyakan ke Ketua Panitia dulu ya! Nanti saya kabari lagi.";
   }
 
-  return null; // Tidak merespon jika obrolan tidak relevan
+  return null;
 }
 
 /* ====================================================================
@@ -1253,6 +1325,36 @@ function openInfo() {
   if (checkAdminStatus()) {
     const adminSection = document.getElementById('adminSettingsSection');
     if (adminSection) adminSection.classList.remove('hidden');
+
+    // Populate current values in admin inputs
+    const config = { ...APP_CONFIG, ...DYNAMIC_CONFIG };
+    document.getElementById('adminGroupNameInput').value = config.groupName;
+    document.getElementById('adminGroupDescInput').value = config.groupDescription;
+    document.getElementById('adminBannedNamesInput').value = DYNAMIC_CONFIG?.bannedNames || "";
+    document.getElementById('adminBannedWordsInput').value = DYNAMIC_CONFIG?.bannedWords || "";
+    
+    // Format bot commands from Firebase
+    if (DYNAMIC_CONFIG?.botCommands) {
+      document.getElementById('adminBotCommandsInput').value = DYNAMIC_CONFIG.botCommands;
+    } else {
+      const examples = APP_CONFIG.botCommands.map(c => 
+        `${c.command} | ${c.keywords.join(', ')} | ${c.reply.substring(0, 50)}${c.reply.length > 50 ? '...' : ''}`
+      ).join('\n');
+      document.getElementById('adminBotCommandsInput').value = examples;
+    }
+
+    // Populate AI Small Talk
+    if (DYNAMIC_CONFIG?.aiResponses) {
+      document.getElementById('adminAiResponsesInput').value = DYNAMIC_CONFIG.aiResponses;
+    } else {
+      const aiExamples = [
+        "assalam, waalaikum | Wa'alaikumussalam ustadz! 🙏",
+        "halo, hai | Halo ustadz! Ada yang bisa dibantu? 😊",
+        "mantap, keren | Syukron tadz! 🔥",
+        "syukron, makasih | Afwan ustadz, sama-sama! 🙏"
+      ].join('\n');
+      document.getElementById('adminAiResponsesInput').value = aiExamples;
+    }
   }
 }
 function closeInfo() {
@@ -1720,29 +1822,42 @@ window.openGuidebook = function() {
   }
 };
 
-window.saveGuidebookSettings = function() {
-  const input = document.getElementById('guidebookReleaseInput');
-  const val = input.value;
-  if (!val) {
-    showToast("❌ Pilih tanggal & waktu dulu");
+window.saveAllAdminSettings = function() {
+  const releaseDate = document.getElementById('guidebookReleaseInput').value;
+  const groupName = document.getElementById('adminGroupNameInput').value.trim();
+  const groupDescription = document.getElementById('adminGroupDescInput').value.trim();
+  const bannedNames = document.getElementById('adminBannedNamesInput').value.trim();
+  const bannedWords = document.getElementById('adminBannedWordsInput').value.trim();
+  const botCommands = document.getElementById('adminBotCommandsInput').value.trim();
+  const aiResponses = document.getElementById('adminAiResponsesInput').value.trim();
+
+  if (!groupName) {
+    showToast("❌ Nama Grup tidak boleh kosong");
     return;
   }
 
-  showToast("⏳ Menyimpan ke Firebase...");
+  showToast("⏳ Menyimpan pengaturan...");
 
-  const settingsRef = window._child(window._ref_func(window._db), "settings/guidebook");
-  window._set(settingsRef, {
-    releaseDate: val,
-    updatedAt: window._serverTimestamp()
-  }).then(() => {
-    showToast("✅ Berhasil! Waktu rilis diperbarui.");
+  const payload = {
+    "groupName": groupName,
+    "groupDescription": groupDescription,
+    "bannedNames": bannedNames,
+    "bannedWords": bannedWords,
+    "botCommands": botCommands,
+    "aiResponses": aiResponses,
+    "lastUpdated": window._serverTimestamp()
+  };
+  
+  if (releaseDate) {
+    payload["guidebook"] = { releaseDate: releaseDate };
+  }
+
+  const settingsRef = window._child(window._ref_func(window._db), "settings");
+  
+  window._update(settingsRef, payload).then(() => {
+    showToast("✅ Pengaturan Master disimpan!");
   }).catch(e => {
-    console.error("Firebase Save Error:", e);
-    // Jika error permission denied
-    if (e.message.includes("permission_denied")) {
-      alert("❌ Gagal: Firebase Rules Anda menolak akses. \n\nSilakan buka Firebase Console > Realtime Database > Rules, lalu pastikan folder 'settings' diizinkan untuk ditulis.");
-    } else {
-      showToast("❌ Gagal simpan: " + e.message);
-    }
+    console.error("Master Save Error:", e);
+    showToast("❌ Gagal simpan: " + e.message);
   });
 };

@@ -247,18 +247,75 @@
         </ul>
       </div>
       <div class="info-section glass-section admin-only-ui hidden" id="adminSettingsSection">
-        <div class="info-section-title">⚙️ Admin Settings</div>
-        <div style="padding: 10px; color: var(--wa-text);">
-          <label style="display:block; font-size:12px; margin-bottom:5px; opacity:0.8;">Release Guidebook (Waktu
-            Buka):</label>
-          <div style="display:flex; gap:8px;">
+        <div class="info-section-title">⚙️ Master Admin Settings</div>
+        <div class="admin-controls-wrapper" style="padding: 10px; color: var(--wa-text); display: flex; flex-direction: column; gap: 15px;">
+          
+          <!-- Guidebook Timing -->
+          <div>
+            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">📅 Waktu Buka Guidebook:</label>
             <input type="datetime-local" id="guidebookReleaseInput"
-              style="flex:1; padding:8px; border-radius:8px; border:1px solid var(--glass-border); background:var(--wa-input-bg); color:var(--wa-text); font-family:inherit;" />
-            <button onclick="saveGuidebookSettings()"
-              style="background:var(--wa-accent); color:#fff; border:none; padding:8px 12px; border-radius:8px; font-weight:600; cursor:pointer;">Simpan</button>
+              style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--glass-border); background:var(--wa-input-bg); color:var(--wa-text); font-family:inherit;" />
           </div>
-          <p style="font-size:11px; margin-top:8px; opacity:0.7;">Atur kapan tombol @guidebook bisa dibuka oleh peserta.
-          </p>
+
+          <hr style="border: 0; border-top: 1px solid var(--glass-border);">
+
+          <!-- Group Info -->
+          <div>
+            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">📝 Info Grup:</label>
+            <input type="text" id="adminGroupNameInput" placeholder="Nama Grup"
+              style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--glass-border); background:var(--wa-input-bg); color:var(--wa-text); font-family:inherit; margin-bottom:8px;" />
+            <textarea id="adminGroupDescInput" placeholder="Deskripsi Grup" rows="3"
+              style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--glass-border); background:var(--wa-input-bg); color:var(--wa-text); font-family:inherit; resize: vertical;"></textarea>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--glass-border);">
+
+          <!-- Banned Names (Username) -->
+          <div>
+            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">👤 Nama Terlarang (Untuk Username):</label>
+            <p style="font-size:10px; opacity:0.7; margin-bottom:5px;">Mencegah user menyamar jadi panitia. <br>Contoh: admin, panitia, official, moderator, panitiaDA</p>
+            <textarea id="adminBannedNamesInput" placeholder="admin, panitia, official..." rows="2"
+              style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--glass-border); background:var(--wa-input-bg); color:var(--wa-text); font-family:inherit; resize: vertical;"></textarea>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--glass-border);">
+
+          <!-- Banned Words (Chat Message) -->
+          <div>
+            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">💬 Kata Kasar Terlarang (Untuk Chat):</label>
+            <p style="font-size:10px; opacity:0.7; margin-bottom:5px;">Mencegah kata kotor di dalam chat. <br>Contoh: anjing, babi, bangsat, dll.</p>
+            <textarea id="adminBannedWordsInput" placeholder="anjing, babi, bangsat..." rows="2"
+              style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--glass-border); background:var(--wa-input-bg); color:var(--wa-text); font-family:inherit; resize: vertical;"></textarea>
+          </div>
+          <hr style="border: 0; border-top: 1px solid var(--glass-border);">
+
+          <!-- Auto Reply / Bot Commands -->
+          <div>
+            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">🤖 Auto Reply (Bot):</label>
+            <p style="font-size:10px; opacity:0.7; margin-bottom:5px;">Format: <code>@perintah | keyword1, keyword2 | Pesan Balasan</code><br>Contoh: <code>@halo | hai, halo, p | Halo juga ustadz!</code></p>
+            <textarea id="adminBotCommandsInput" placeholder="@perintah | kata kunci | balasan..." rows="4"
+              style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--glass-border); background:var(--wa-input-bg); color:var(--wa-text); font-family:monospace; font-size:11px; resize: vertical;"></textarea>
+            <p style="font-size:10px; opacity:0.7; margin-top:5px; line-height:1.4;">
+              <b>💡 Tips Rich UI:</b> Gunakan tag <code>[CARD_GUIDEBOOK]</code>, <code>[CARD_LOCATION]</code>, atau <code>[LIST_SCHEDULE]</code> di kolom balasan untuk memunculkan tampilan kartu otomatis.
+            </p>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--glass-border);">
+
+          <!-- Smart AI / Small Talk -->
+          <div>
+            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">🧠 Smart AI (Small Talk):</label>
+            <p style="font-size:10px; opacity:0.7; margin-bottom:5px;">Respon otomatis untuk sapaan (tanpa @). <br>Format: <code>keyword1, keyword2 | Pesan AI</code></p>
+            <textarea id="adminAiResponsesInput" placeholder="halo, hai | Halo ustadz!..." rows="4"
+              style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--glass-border); background:var(--wa-input-bg); color:var(--wa-text); font-family:monospace; font-size:11px; resize: vertical;"></textarea>
+          </div>
+
+          <button onclick="saveAllAdminSettings()"
+            style="background:var(--wa-accent); color:#fff; border:none; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; margin-top:10px; transition: transform 0.2s;">
+            💾 Simpan Semua Perubahan
+          </button>
+          
+          <p style="font-size:10px; text-align:center; opacity:0.6;">Perubahan akan langsung berefek ke semua user.</p>
         </div>
       </div>
     </div>
@@ -426,7 +483,7 @@
   </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, onChildRemoved, query, limitToLast, serverTimestamp, get, remove, child, set, onValue }
+    import { getDatabase, ref, push, onChildAdded, onChildRemoved, query, limitToLast, serverTimestamp, get, remove, child, set, update, onValue }
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
     import { getStorage, ref as sRef, uploadBytes, getDownloadURL }
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
@@ -468,6 +525,7 @@
     window._limitToLast = limitToLast;
     window._get = get;
     window._set = set;
+    window._update = update;
     window._onValue = onValue;
     window._ref_func = ref;
 
