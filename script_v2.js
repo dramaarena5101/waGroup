@@ -30,6 +30,7 @@ const APP_CONFIG = {
   groupBanner: "assets/7.jpeg",
   pageTitle: "Yahanu Grup DA 5101",
 
+
   // Bentuk Avatar Grup: 'circle' (bulat) atau 'square' (kotak/natural)
   groupAvatarShape: "circle", 
 
@@ -44,52 +45,55 @@ const APP_CONFIG = {
   // Deskripsi grup ini akan muncul di sidebar saat nama grup diklik
   groupDescription: "Selamat datang di grup resmi Drama Arena 5101! Di sini bisa  berbagi momen, dan menyaksikan keseruan acara bersama. Mari saling mendukung para penampil! 🎉",
   eventPosters: [
-    { src: 'assets/5.jpeg', label: 'Drama' },
-    { src: 'assets/6.jpeg', label: 'Paduan Suara' },
-    { src: 'assets/7.jpeg', label: 'Tari' },
-    { src: 'assets/8.jpeg', label: 'Band' }
+    { src: 'assets/1.jpeg', label: 'Poster 1' },
+    { src: 'assets/2.jpeg', label: 'Poster 2' },
+    { src: 'assets/3.jpeg', label: 'Poster 3' },
+    { src: 'assets/4.jpeg', label: 'Poster 4' },
+    { src: 'assets/5.jpeg', label: 'Poster 5' },
+    { src: 'assets/6.jpeg', label: 'Poster 5' },
+    { src: 'assets/7.jpeg', label: 'Poster 5' },
   ],
   schedule: [
-    { time: "07.00", text: "Visual Testimoni “Semangat Al Akh Ku”" },
-    { time: "07.15", text: "Scandious Show" },
-    { time: "07.30", text: "Visual “Bayangkan Jika Kita Tidak Menyerah”" },
-    { time: "07.45", text: "Opening Nasyid “Cahaya Shifr”" },
-    { time: "08.00", text: "Visual Sapa MC" },
-    { time: "08.10", text: "Master of Ceremony" },
-    { time: "08.20", text: "Pembukaan oleh Qur’an" },
-    { time: "08.30", text: "Sambutan Ketua Drama Arena" },
-    { time: "08.45", text: "Sambutan Pimpinan Pondok Modern Darussalam Gontor" },
-    { time: "09.00", text: "Visual Tari Duri" },
-    { time: "09.15", text: "Grand Opening (Ost. DA 5101)" },
-    { time: "09.30", text: "Choir 5101" },
-    { time: "09.45", text: "Drama POV 1 – Bintang" },
-    { time: "10.00", text: "Tari" },
-    { time: "10.15", text: "Visual “Syukran Alhamdulillah”" },
-    { time: "10.30", text: "Visual POV 2 – Akta" },
-    { time: "10.45", text: "Hiburan" },
-    { time: "11.00", text: "Ya Maulaya (Mazka)" },
-    { time: "11.15", text: "Ya Maulaya (Nafa)" },
-    { time: "11.30", text: "Luda Ludu Wel" },
-    { time: "11.45", text: "Arjuna" },
-    { time: "12.00", text: "Black Mask Rhythm" },
-    { time: "12.15", text: "Tong Bascudera" },
-    { time: "12.30", text: "Drama POV 3 – Mudabbir" },
-    { time: "12.45", text: "Visual “Taqwa dan Amanah”" },
-    { time: "13.00", text: "5101 Band “Tangguh”" },
-    { time: "13.15", text: "Fashion Show" },
-    { time: "13.30", text: "Iklan “Temukan Makna Untuk Bersama”" },
-    { time: "13.45", text: "Tari Rateb Meuseukat" },
-    { time: "14.00", text: "Visual POV 4 – Aflah" },
-    { time: "14.15", text: "5101 Band “Melodi Tongkrongan”" },
-    { time: "14.30", text: "Drama POV 4 – Aflah" },
-    { time: "14.45", text: "Raqs Arabian" },
-    { time: "15.00", text: "Silent Dance" },
-    { time: "15.15", text: "Infinity Beatbox" },
-    { time: "15.30", text: "Catwalk" },
-    { time: "15.45", text: "Electric Six" },
-    { time: "16.00", text: "Hikaru Toki DA" },
-    { time: "16.15", text: "Drama POV 5 – Pilar" },
-    { time: "16.30", text: "Grand Closing “Api Perjuangan”" }
+    { time: "01", text: "Visual Testimoni “Semangat Al Akh Ku”" },
+    { time: "02", text: "Scandious Show" },
+    { time: "03", text: "Visual “Bayangkan Jika Kita Tidak Menyerah”" },
+    { time: "04", text: "Opening Nasyid “Cahaya Shifr”" },
+    { time: "05", text: "Visual Sapa MC" },
+    { time: "06", text: "Master of Ceremony" },
+    { time: "07", text: "Pembukaan oleh Qur’an" },
+    { time: "08", text: "Sambutan Ketua Drama Arena" },
+    { time: "09", text: "Sambutan Pimpinan Pondok Modern Darussalam Gontor" },
+    { time: "10", text: "Visual Tari Duri" },
+    { time: "11", text: "Grand Opening (Ost. DA 5101)" },
+    { time: "12", text: "Choir 5101" },
+    { time: "13", text: "Drama POV 1 – Bintang" },
+    { time: "14", text: "Tari" },
+    { time: "15", text: "Visual “Syukran Alhamdulillah”" },
+    { time: "16", text: "Visual POV 2 – Akta" },
+    { time: "17", text: "Hiburan" },
+    { time: "18", text: "Ya Maulaya (Mazka)" },
+    { time: "19", text: "Ya Maulaya (Nafa)" },
+    { time: "20", text: "Luda Ludu Wel" },
+    { time: "21", text: "Arjuna" },
+    { time: "22", text: "Black Mask Rhythm" },
+    { time: "23", text: "Tong Bascudera" },
+    { time: "24", text: "Drama POV 3 – Mudabbir" },
+    { time: "25", text: "Visual “Taqwa dan Amanah”" },
+    { time: "26", text: "5101 Band “Tangguh”" },
+    { time: "27", text: "Fashion Show" },
+    { time: "28", text: "Iklan “Temukan Makna Untuk Bersama”" },
+    { time: "29", text: "Tari Rateb Meuseukat" },
+    { time: "30", text: "Visual POV 4 – Aflah" },
+    { time: "31", text: "5101 Band “Melodi Tongkrongan”" },
+    { time: "32", text: "Drama POV 4 – Aflah" },
+    { time: "33", text: "Raqs Arabian" },
+    { time: "34", text: "Silent Dance" },
+    { time: "35", text: "Infinity Beatbox" },
+    { time: "36", text: "Catwalk" },
+    { time: "37", text: "Electric Six" },
+    { time: "38", text: "Hikaru Toki DA" },
+    { time: "39", text: "Drama POV 5 – Pilar" },
+    { time: "40", text: "Grand Closing “Api Perjuangan”" }
   ],
   location: {
     text: "Depan Gedung New BPPM <br/>Pondok Modern Darussalam Gontor<br/>Ponorogo, Jawa Timur",
@@ -109,7 +113,7 @@ const APP_CONFIG = {
   autoCall: {
     enabled: true,
     delayMs: 30000, // 30 detik untuk percobaan
-    videoSrc: "assets/1.mp4", // Video berbeda untuk auto call
+    videoSrc: "assets/3.webm", // Video berbeda untuk auto call
     callerName: "Drama Arena 5101 Official"
   },
 
@@ -247,6 +251,13 @@ const APP_CONFIG = {
           </a>
         </div>
       </div>
+    ` },
+        { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `
+      <div class="message-image" style="margin-top:8px;">
+      Dan ini untuk denah tempat duduk ustadz 🙏 <br>
+        <img src="assets/denah.jpeg" style="width:100%;    border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor:pointer;" onclick="openImage(this.src)" alt="Official Poster DA 5101" />
+      </div>
+      <p style="margin-top:8px; font-size:12px; color:var(--wa-sub);">Denah Tempat Duduk</p>
     ` },
 
     { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.05", content: "Ditunggu banget kehadirannya antum ya, ustadz-ustadzkuh! 🙏✨" },
@@ -772,6 +783,17 @@ function sendMessage() {
           finalReply = "📅 <b>Susunan Acara Drama Arena 5101:</b><br/><br/>" + 
                        APP_CONFIG.schedule.map(s => `• <b>${s.time}</b> - ${s.text}`).join('<br/>');
         }
+        // 4. Template Denah Tempat Duduk
+        else if (finalReply.includes("[CARD_SEATING]")) {
+          finalReply = `
+            <div class="message-image" style="margin-top:8px;">
+              <p style="margin-bottom:8px;"><b>🪑 Denah Tempat Duduk:</b></p>
+              <img src="assets/denah.jpeg" style="width:100%; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor:pointer;" 
+                onclick="openImage(this.src)" alt="Denah Tempat Duduk" />
+              <p style="margin-top:8px; font-size:11px; opacity:0.8;">Klik gambar untuk memperbesar denah.</p>
+            </div>
+          `;
+        }
 
         window._push(window._ref, {
           name: "Panitia Drama Arena 5101",
@@ -1253,7 +1275,31 @@ window.checkCommand = function(val) {
   
   if (val.startsWith('@')) {
     const search = val.toLowerCase();
-    const matches = APP_CONFIG.botCommands.filter(c => c.command.toLowerCase().startsWith(search));
+    
+    // 1. Ambil Perintah Statis
+    const staticCommands = APP_CONFIG.botCommands.map(c => ({
+      command: c.command,
+      description: c.description || "Perintah sistem"
+    }));
+
+    // 2. Ambil Perintah Dinamis (Firebase)
+    let dynamicCommands = [];
+    if (DYNAMIC_CONFIG && DYNAMIC_CONFIG.botCommands) {
+      const lines = DYNAMIC_CONFIG.botCommands.split('\n');
+      lines.forEach(line => {
+        const parts = line.split('|');
+        if (parts.length >= 3) {
+          dynamicCommands.push({
+            command: parts[0].trim(),
+            description: "Klik untuk kirim balasan otomatis"
+          });
+        }
+      });
+    }
+
+    // 3. Gabungkan & Filter
+    const combined = [...dynamicCommands, ...staticCommands];
+    const matches = combined.filter(c => c.command.toLowerCase().startsWith(search));
     
     if (matches.length > 0) {
       popup.innerHTML = matches.map(c => `
@@ -1552,9 +1598,9 @@ function hashColor(name) {
 function simulateOnlineCount() {
   const el = document.getElementById("onlineCount");
   setInterval(() => {
-    el.textContent = `734 peserta • ${Math.floor(Math.random()*40)+300} online`;
+    el.textContent = `5101 peserta • ${Math.floor(Math.random()*40)+300} online`;
   }, 10000);
-  el.textContent = `734 peserta • 312 online`;
+  el.textContent = `5101 peserta • 101 online`;
 }
 
 function showToast(msg) {

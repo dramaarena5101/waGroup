@@ -218,7 +218,7 @@
         </div>
       </div>
       <h2 class="info-title" id="infoGroupName">Drama Arena 5101</h2>
-      <p class="info-subtitle">Dibuat 1 Jan 2026 • Hanya admin yang bisa edit info grup</p>
+      <p class="info-subtitle">Dibuat 1 Jan 2026</p>
 
       <div class="info-section glass-section">
         <div class="info-section-title">📋 Deskripsi Grup</div>
@@ -232,7 +232,7 @@
       </div>
 
       <div class="info-section glass-section">
-        <div class="info-section-title">📅 Jadwal Acara</div>
+        <div class="info-section-title">📅 Susunan Acara</div>
         <div class="rundown-list" id="configSchedule"></div>
       </div>
 
@@ -248,11 +248,13 @@
       </div>
       <div class="info-section glass-section admin-only-ui hidden" id="adminSettingsSection">
         <div class="info-section-title">⚙️ Master Admin Settings</div>
-        <div class="admin-controls-wrapper" style="padding: 10px; color: var(--wa-text); display: flex; flex-direction: column; gap: 15px;">
-          
+        <div class="admin-controls-wrapper"
+          style="padding: 10px; color: var(--wa-text); display: flex; flex-direction: column; gap: 15px;">
+
           <!-- Guidebook Timing -->
           <div>
-            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">📅 Waktu Buka Guidebook:</label>
+            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">📅 Waktu Buka
+              Guidebook:</label>
             <input type="datetime-local" id="guidebookReleaseInput"
               style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--glass-border); background:var(--wa-input-bg); color:var(--wa-text); font-family:inherit;" />
           </div>
@@ -272,8 +274,10 @@
 
           <!-- Banned Names (Username) -->
           <div>
-            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">👤 Nama Terlarang (Untuk Username):</label>
-            <p style="font-size:10px; opacity:0.7; margin-bottom:5px;">Mencegah user menyamar jadi panitia. <br>Contoh: admin, panitia, official, moderator, panitiaDA</p>
+            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">👤 Nama Terlarang (Untuk
+              Username):</label>
+            <p style="font-size:10px; opacity:0.7; margin-bottom:5px;">Mencegah user menyamar jadi panitia. <br>Contoh:
+              admin, panitia, official, moderator, panitiaDA</p>
             <textarea id="adminBannedNamesInput" placeholder="admin, panitia, official..." rows="2"
               style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--glass-border); background:var(--wa-input-bg); color:var(--wa-text); font-family:inherit; resize: vertical;"></textarea>
           </div>
@@ -282,8 +286,10 @@
 
           <!-- Banned Words (Chat Message) -->
           <div>
-            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">💬 Kata Kasar Terlarang (Untuk Chat):</label>
-            <p style="font-size:10px; opacity:0.7; margin-bottom:5px;">Mencegah kata kotor di dalam chat. <br>Contoh: anjing, babi, bangsat, dll.</p>
+            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">💬 Kata Kasar Terlarang
+              (Untuk Chat):</label>
+            <p style="font-size:10px; opacity:0.7; margin-bottom:5px;">Mencegah kata kotor di dalam chat. <br>Contoh:
+              anjing, babi, bangsat, dll.</p>
             <textarea id="adminBannedWordsInput" placeholder="anjing, babi, bangsat..." rows="2"
               style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--glass-border); background:var(--wa-input-bg); color:var(--wa-text); font-family:inherit; resize: vertical;"></textarea>
           </div>
@@ -291,12 +297,18 @@
 
           <!-- Auto Reply / Bot Commands -->
           <div>
-            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">🤖 Auto Reply (Bot):</label>
-            <p style="font-size:10px; opacity:0.7; margin-bottom:5px;">Format: <code>@perintah | keyword1, keyword2 | Pesan Balasan</code><br>Contoh: <code>@halo | hai, halo, p | Halo juga ustadz!</code></p>
+            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">🤖 Auto Reply
+              (Bot):</label>
+            <p style="font-size:10px; opacity:0.7; margin-bottom:5px;">Format:
+              <code>@perintah | keyword1, keyword2 | Pesan Balasan</code><br>Contoh:
+              <code>@halo | hai, halo, p | Halo juga ustadz!</code>
+            </p>
             <textarea id="adminBotCommandsInput" placeholder="@perintah | kata kunci | balasan..." rows="4"
               style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--glass-border); background:var(--wa-input-bg); color:var(--wa-text); font-family:monospace; font-size:11px; resize: vertical;"></textarea>
             <p style="font-size:10px; opacity:0.7; margin-top:5px; line-height:1.4;">
-              <b>💡 Tips Rich UI:</b> Gunakan tag <code>[CARD_GUIDEBOOK]</code>, <code>[CARD_LOCATION]</code>, atau <code>[LIST_SCHEDULE]</code> di kolom balasan untuk memunculkan tampilan kartu otomatis.
+              <b>💡 Tips Rich UI:</b> Gunakan tag <code>[CARD_GUIDEBOOK]</code>, <code>[CARD_LOCATION]</code>,
+              <code>[CARD_SEATING]</code> atau
+              <code>[LIST_SCHEDULE]</code> di kolom balasan untuk memunculkan tampilan kartu otomatis.
             </p>
           </div>
 
@@ -304,8 +316,11 @@
 
           <!-- Smart AI / Small Talk -->
           <div>
-            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">🧠 Smart AI (Small Talk):</label>
-            <p style="font-size:10px; opacity:0.7; margin-bottom:5px;">Respon otomatis untuk sapaan (tanpa @). <br>Format: <code>keyword1, keyword2 | Pesan AI</code></p>
+            <label style="display:block; font-size:12px; margin-bottom:5px; font-weight:700;">🧠 Smart AI (Small
+              Talk):</label>
+            <p style="font-size:10px; opacity:0.7; margin-bottom:5px;">Respon otomatis untuk sapaan (tanpa @).
+              <br>Format: <code>keyword1, keyword2 | Pesan AI</code>
+            </p>
             <textarea id="adminAiResponsesInput" placeholder="halo, hai | Halo ustadz!..." rows="4"
               style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--glass-border); background:var(--wa-input-bg); color:var(--wa-text); font-family:monospace; font-size:11px; resize: vertical;"></textarea>
           </div>
@@ -314,7 +329,7 @@
             style="background:var(--wa-accent); color:#fff; border:none; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; margin-top:10px; transition: transform 0.2s;">
             💾 Simpan Semua Perubahan
           </button>
-          
+
           <p style="font-size:10px; text-align:center; opacity:0.6;">Perubahan akan langsung berefek ke semua user.</p>
         </div>
       </div>
@@ -378,7 +393,7 @@
       style="width: 100%; height: 100%; display: flex; flex-direction: column; background: #0b141a;">
       <div class="video-main"
         style="position: relative; flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-        <video id="videoPlayer" muted playsinline src="assets/1.mp4"
+        <video id="videoPlayer" muted playsinline src="assets/3.webm"
           poster="https://via.placeholder.com/720x1280/1a1a2e/ffffff?text=🔥"
           style="width: 100%; height: 100%; object-fit: cover;">
         </video>
