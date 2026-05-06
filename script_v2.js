@@ -256,9 +256,10 @@ const APP_CONFIG = {
         { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `
       <div class="message-image" style="margin-top:8px;">
       Dan ini untuk denah tempat duduk ustadz 🙏 <br>
-        <img src="assets/denah.jpeg" style="width:100%;    border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor:pointer;" onclick="openImage(this.src)" alt="Official Poster DA 5101" />
+        <img src="assets/denah.jpeg" style="width:100%; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor:pointer;" 
+          onclick="window.openImage(this.src)" alt="Denah Tempat Duduk" />
       </div>
-      <p style="margin-top:8px; font-size:12px; color:var(--wa-sub);">Denah Tempat Duduk</p>
+      <p style="margin-top:8px; font-size:12px; color:var(--wa-sub);">Denah Tempat Duduk (Klik untuk Zoom)</p>
     ` },
 
     { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.05", content: "Ditunggu banget kehadirannya antum ya, ustadz-ustadzkuh! 🙏✨" },
@@ -1515,7 +1516,13 @@ window.startVideoCall = function() {
   if (vid) {
     vid.muted = false; 
     vid.volume = 0.8;
-    vid.onended = endVideoCall; // Auto-end when video finished
+    
+    // Pastikan event listener terpasang dengan kuat
+    vid.onended = () => {
+      console.log("Video ended, closing call...");
+      window.endVideoCall();
+    };
+
     vid.play().catch(() => {
       vid.muted = true;
       vid.play().catch(() => {});
