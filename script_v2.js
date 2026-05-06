@@ -113,7 +113,7 @@ const APP_CONFIG = {
   autoCall: {
     enabled: true,
     delayMs: 30000, // 30 detik untuk percobaan
-    videoSrc: "assets/3.webm", // Video berbeda untuk auto call
+    videoSrc: "assets/3.mp4", // Video berbeda untuk auto call
     callerName: "Drama Arena 5101 Official"
   },
 
