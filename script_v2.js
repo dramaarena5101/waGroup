@@ -204,9 +204,10 @@ const APP_CONFIG = {
     // --- FLOW UNDANGAN DIGITAL (STATIC CONVERSATION) ---
     { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.00", content: "Assalamulaikum ustadz-ustadz sekalian... 🙏 <br><br>Undangan resmi dari kami untuk antum sekalian dalam memeriahkan acara <b>Drama Arena 5101</b>. Yang bermotokan: <br><i>'Nyalakan Api Kebersamaan, Wujudkan Idealisme Kehidupan'</i>. <br>InsyaAllah bakal seru dan meriah jangan sampai kelewatan ya ustadz-ustadzkuh!" },
     
+
     { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `
       <div class="message-image" style="margin-top:8px;">
-        <img src="official_poster_new.png" style="width:100%; max-width:260px; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor:pointer;" onclick="openImage(this.src)" alt="Official Poster DA 5101" />
+        <img src="assets/8.jpeg" style="width:100%; max-width:260px; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor:pointer;" onclick="openImage(this.src)" alt="Official Poster DA 5101" />
       </div>
       <p style="margin-top:8px; font-size:12px; color:var(--wa-sub);">👆 Poster Drama Arena 5101</p>
     ` },
