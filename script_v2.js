@@ -50,8 +50,8 @@ const APP_CONFIG = {
     { src: 'assets/3.jpeg', label: 'Poster 3' },
     { src: 'assets/4.jpeg', label: 'Poster 4' },
     { src: 'assets/5.jpeg', label: 'Poster 5' },
-    { src: 'assets/6.jpeg', label: 'Poster 5' },
-    { src: 'assets/7.jpeg', label: 'Poster 5' },
+    { src: 'assets/6.jpeg', label: 'Poster 6' },
+    { src: 'assets/7.jpeg', label: 'Poster 7' },
   ],
   schedule: [
     { time: "01", text: "Visual Testimoni “Semangat Al Akh Ku”" },
