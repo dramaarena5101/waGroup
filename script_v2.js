@@ -1342,20 +1342,55 @@ window.openImage = function(src) {
     viewer.id = 'imageViewer';
     viewer.className = 'modal-overlay';
     viewer.style.zIndex = '9999';
+    viewer.style.background = 'rgba(0,0,0,0.9)';
     viewer.innerHTML = `
-      <div style="position:relative; width:90%; max-width:500px; animation: modalIn 0.3s ease-out;">
-        <button style="position:absolute; top:-40px; right:0; background:none; border:none; color:#fff; font-size:28px; cursor:pointer;" onclick="closeImageViewer()">✕</button>
-        <img id="viewerImage" src="" style="width:100%; border-radius:12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
+      <div class="viewer-container" style="position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+        <button style="position:absolute; top:20px; right:20px; background:rgba(0,0,0,0.5); border:none; color:#fff; font-size:24px; width:40px; height:40px; border-radius:50%; cursor:pointer; z-index:10001;" onclick="closeImageViewer()">✕</button>
+        <img id="viewerImage" src="" style="max-width:95%; max-height:95%; transition:transform 0.2s; cursor:grab; transform-origin:center;" />
+        <div style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); color:#fff; padding:5px 15px; border-radius:20px; font-size:12px; pointer-events:none;">Gunakan scroll/cubit untuk Zoom</div>
       </div>
     `;
     document.body.appendChild(viewer);
     
-    viewer.addEventListener('click', (e) => {
-      if (e.target === viewer) closeImageViewer();
+    // Logic Zoom & Pan
+    const img = viewer.querySelector('#viewerImage');
+    let scale = 1;
+    let isDragging = false;
+    let startX, startY, translateX = 0, translateY = 0;
+
+    viewer.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.2 : 0.2;
+      scale = Math.min(Math.max(1, scale + delta), 4);
+      img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    }, { passive: false });
+
+    img.addEventListener('mousedown', (e) => {
+      if (scale > 1) {
+        isDragging = true;
+        startX = e.clientX - translateX;
+        startY = e.clientY - translateY;
+        img.style.cursor = 'grabbing';
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        translateX = e.clientX - startX;
+        translateY = e.clientY - startY;
+        img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+      img.style.cursor = 'grab';
     });
   }
   
-  document.getElementById('viewerImage').src = src;
+  const imgEl = document.getElementById('viewerImage');
+  imgEl.src = src;
+  imgEl.style.transform = 'translate(0,0) scale(1)'; // Reset
   viewer.classList.remove('hidden');
 };
 
@@ -1519,8 +1554,8 @@ window.startVideoCall = function() {
     
     // Pastikan event listener terpasang dengan kuat
     vid.onended = () => {
-      console.log("Video ended, closing call...");
-      window.endVideoCall();
+      console.log("Video ended, closing call instantly...");
+      window.endVideoCall(true); // Kirim parameter true untuk tutup instan
     };
 
     vid.play().catch(() => {
@@ -1530,7 +1565,7 @@ window.startVideoCall = function() {
   }
 };
 
-window.endVideoCall = function() {
+window.endVideoCall = function(instant = false) {
   const vid = document.getElementById('videoPlayer');
   if (vid) {
     vid.pause();
@@ -1538,21 +1573,26 @@ window.endVideoCall = function() {
     vid.currentTime = 0;
   }
 
-  // Animasi Call Ended
   const statusEl = document.getElementById("videoCallerName");
   if (statusEl) {
     statusEl.textContent = "Panggilan Berakhir";
     statusEl.parentElement.style.background = "#ff3b30";
   }
 
-  setTimeout(() => {
+  const closeAction = () => {
     document.getElementById("videoModal").classList.add("hidden");
     if (statusEl) {
       statusEl.textContent = "Drama Arena 5101 • Live";
       statusEl.parentElement.style.background = "";
     }
     showToast("📵 Video call diakhiri");
-  }, 1500);
+  };
+
+  if (instant) {
+    closeAction();
+  } else {
+    setTimeout(closeAction, 1500);
+  }
 };
 
 /* Emoji */
