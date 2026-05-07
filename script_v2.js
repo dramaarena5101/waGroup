@@ -207,9 +207,15 @@ const APP_CONFIG = {
 
     { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `
       <div class="message-image" style="margin-top:8px;">
-        <img src="assets/8.jpeg" style="width:100%; max-width:260px; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor:pointer;" onclick="openImage(this.src)" alt="Official Poster DA 5101" />
+        <img src="assets/10.jpeg" style="width:100%; max-width:260px; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor:pointer;" onclick="openImage(this.src)" alt="Official Poster DA 5101" />
       </div>
-      <p style="margin-top:8px; font-size:12px; color:var(--wa-sub);">👆 Poster Drama Arena 5101</p>
+      <p style="margin-top:8px; font-size:12px; color:var(--wa-sub);">👆 Poster Al-Akh Bintang</p>
+    ` },
+    { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.01", content: `
+      <div class="message-image" style="margin-top:8px;">
+        <img src="assets/9.jpeg" style="width:100%; max-width:260px; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor:pointer;" onclick="openImage(this.src)" alt="Official Poster DA 5101" />
+      </div>
+      <p style="margin-top:8px; font-size:12px; color:var(--wa-sub);">👆 Poster Azka & Al-Akh Pijar</p>
     ` },
 
     { sender: "", color: "#2196F3", time: "08.02", content: "MasyaAllah..., menyala 🔥🔥🔥 Ditunggu banget nih min! <br>Izin tanya, ada info detail acaranya gak? Kayak rundown atau denah lokasinya gitu biar kita bisa prepare?", isOwn: true },
