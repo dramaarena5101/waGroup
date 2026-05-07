@@ -45,6 +45,8 @@ const APP_CONFIG = {
   // Deskripsi grup ini akan muncul di sidebar saat nama grup diklik
   groupDescription: "Selamat datang di grup resmi Drama Arena 5101! Di sini bisa  berbagi momen, dan menyaksikan keseruan acara bersama. Mari saling mendukung para penampil! 🎉",
   eventPosters: [
+    { src: 'assets/10.jpeg', label: 'Poster 1' },
+    { src: 'assets/9.jpeg', label: 'Poster 2' },
     { src: 'assets/1.jpeg', label: 'Poster 1' },
     { src: 'assets/2.jpeg', label: 'Poster 2' },
     { src: 'assets/3.jpeg', label: 'Poster 3' },
@@ -1000,7 +1002,7 @@ function getSmartAIResponse(normalized, original) {
 
   // 3. APPRECIATION
   if (normalized.includes("keren") || normalized.includes("mantap") || normalized.includes("jos") || normalized.includes("menyala")) {
-    return "MasyaAllah, syukron tadz! Doakan semoga acaranya nanti benar-benar menyala dan lancar jaya! 🔥🔥";
+    return "MasyaAllah, syukron ustadz! Doakan semoga acaranya nanti lancar jaya dan makin menyala! 🔥🔥";
   }
   if (normalized.includes("syukron") || normalized.includes("makasih") || normalized.includes("terima kasih") || normalized.includes("jazakallah")) {
     return "Afwan ustadz, sudah menjadi tugas kami melayani para tamu undangan dengan baik. 🙏✨";
