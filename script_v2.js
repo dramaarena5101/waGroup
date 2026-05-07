@@ -228,7 +228,7 @@ const APP_CONFIG = {
         <img src="guidebook_cover_v2.png" class="rich-link-image" alt="Guide Book Cover" />
         <div class="rich-link-body">
           <div class="rich-link-title">📚 Guide Book DA 5101</div>
-          <div class="rich-link-desc">E-Book panduan lengkap jadwal, denah, dan profil acara.</div>
+          <div class="rich-link-desc">Panduan digital interaktif jadwal, denah, dan profil acara.</div>
           <button onclick="openGuidebook()" class="rich-link-btn">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
             Buka Guide Book
@@ -780,7 +780,7 @@ function sendMessage() {
               <img src="guidebook_cover_v2.png" class="rich-link-image" alt="Guide Book Cover" />
               <div class="rich-link-body">
                 <div class="rich-link-title">📚 Official Guide Book</div>
-                <div class="rich-link-desc">Pelajari jadwal, denah lokasi, dan profil penampil Drama Arena 5101 secara lengkap di sini.</div>
+                <div class="rich-link-desc">Panduan digital interaktif jadwal, denah, dan profil acara Drama Arena 5101 secara lengkap di sini.</div>
                 <button onclick="openGuidebook()" class="rich-link-btn">
                   <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
                   Buka Guide Book
@@ -1993,7 +1993,7 @@ window.openGuidebook = function() {
     
     modal.classList.remove('hidden');
   } else {
-    window.open('assets/guide-book.pdf', '_blank');
+    window.open('https://digitalguidebook.vercel.app/', '_blank');
   }
 };
 
