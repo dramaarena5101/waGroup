@@ -397,6 +397,16 @@ function applyAppConfig() {
       chatEl.style.backgroundImage = '';
     }
   }
+
+  // Hide back button if not admin
+  const backBtn = document.querySelector('.header-back-btn');
+  if (backBtn) {
+    if (checkAdminStatus()) {
+      backBtn.classList.remove('hidden');
+    } else {
+      backBtn.classList.add('hidden');
+    }
+  }
 }
 
 function renderStaticMessages() {
@@ -566,6 +576,10 @@ window.unregisterAdminDevice = function() {
 };
 
 function leaveGroup() {
+  if (!checkAdminStatus()) {
+    showToast("🚫 Hanya Admin yang bisa kembali ke halaman Join.");
+    return;
+  }
   localStorage.removeItem("ps_username_v2");
   window.location.reload();
 }
@@ -1344,54 +1358,113 @@ window.openImage = function(src) {
     viewer.style.zIndex = '9999';
     viewer.style.background = 'rgba(0,0,0,0.9)';
     viewer.innerHTML = `
-      <div class="viewer-container" style="position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+      <div class="viewer-container" style="position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; touch-action: none;">
         <button style="position:absolute; top:20px; right:20px; background:rgba(0,0,0,0.5); border:none; color:#fff; font-size:24px; width:40px; height:40px; border-radius:50%; cursor:pointer; z-index:10001;" onclick="closeImageViewer()">✕</button>
-        <img id="viewerImage" src="" style="max-width:95%; max-height:95%; transition:transform 0.2s; cursor:grab; transform-origin:center;" />
+        <img id="viewerImage" src="" style="max-width:95%; max-height:95%; transition:transform 0.1s; cursor:grab; transform-origin:center;" />
         <div style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); color:#fff; padding:5px 15px; border-radius:20px; font-size:12px; pointer-events:none;">Gunakan scroll/cubit untuk Zoom</div>
       </div>
     `;
     document.body.appendChild(viewer);
     
-    // Logic Zoom & Pan
     const img = viewer.querySelector('#viewerImage');
-    let scale = 1;
-    let isDragging = false;
-    let startX, startY, translateX = 0, translateY = 0;
+    viewer._scale = 1;
+    viewer._isDragging = false;
+    viewer._startX = 0;
+    viewer._startY = 0;
+    viewer._translateX = 0;
+    viewer._translateY = 0;
+    
+    // Pinch to zoom state
+    viewer._initialDistance = 0;
+    viewer._initialScale = 1;
 
+    // Mouse Wheel Zoom
     viewer.addEventListener('wheel', (e) => {
       e.preventDefault();
       const delta = e.deltaY > 0 ? -0.2 : 0.2;
-      scale = Math.min(Math.max(1, scale + delta), 4);
-      img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+      viewer._scale = Math.min(Math.max(1, viewer._scale + delta), 4);
+      updateTransform();
     }, { passive: false });
 
+    // Helper for transform
+    function updateTransform() {
+      img.style.transform = `translate(${viewer._translateX}px, ${viewer._translateY}px) scale(${viewer._scale})`;
+      img.style.cursor = viewer._scale > 1 ? 'grab' : 'default';
+    }
+    viewer._updateTransform = updateTransform;
+
+    // Mouse Dragging (Pan)
     img.addEventListener('mousedown', (e) => {
-      if (scale > 1) {
-        isDragging = true;
-        startX = e.clientX - translateX;
-        startY = e.clientY - translateY;
+      if (viewer._scale > 1) {
+        viewer._isDragging = true;
+        viewer._startX = e.clientX - viewer._translateX;
+        viewer._startY = e.clientY - viewer._translateY;
         img.style.cursor = 'grabbing';
       }
     });
 
     window.addEventListener('mousemove', (e) => {
-      if (isDragging) {
-        translateX = e.clientX - startX;
-        translateY = e.clientY - startY;
-        img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+      if (viewer._isDragging) {
+        viewer._translateX = e.clientX - viewer._startX;
+        viewer._translateY = e.clientY - viewer._startY;
+        viewer._updateTransform();
       }
     });
 
     window.addEventListener('mouseup', () => {
-      isDragging = false;
-      img.style.cursor = 'grab';
+      viewer._isDragging = false;
+    });
+
+    // --- TOUCH EVENTS (Mobile Zoom & Pan) ---
+    viewer.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        // Pinch Start
+        viewer._initialDistance = Math.hypot(
+          e.touches[0].pageX - e.touches[1].pageX,
+          e.touches[0].pageY - e.touches[1].pageY
+        );
+        viewer._initialScale = viewer._scale;
+      } else if (e.touches.length === 1 && viewer._scale > 1) {
+        // Pan Start
+        viewer._isDragging = true;
+        viewer._startX = e.touches[0].pageX - viewer._translateX;
+        viewer._startY = e.touches[0].pageY - viewer._translateY;
+      }
+    }, { passive: false });
+
+    viewer.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2) {
+        // Pinch Move
+        e.preventDefault();
+        const currentDistance = Math.hypot(
+          e.touches[0].pageX - e.touches[1].pageX,
+          e.touches[0].pageY - e.touches[1].pageY
+        );
+        const zoomFactor = currentDistance / viewer._initialDistance;
+        viewer._scale = Math.min(Math.max(1, viewer._initialScale * zoomFactor), 4);
+        viewer._updateTransform();
+      } else if (e.touches.length === 1 && viewer._isDragging) {
+        // Pan Move
+        e.preventDefault();
+        viewer._translateX = e.touches[0].pageX - viewer._startX;
+        viewer._translateY = e.touches[0].pageY - viewer._startY;
+        viewer._updateTransform();
+      }
+    }, { passive: false });
+
+    viewer.addEventListener('touchend', (e) => {
+      if (e.touches.length < 2) viewer._initialDistance = 0;
+      if (e.touches.length === 0) viewer._isDragging = false;
     });
   }
   
   const imgEl = document.getElementById('viewerImage');
   imgEl.src = src;
-  imgEl.style.transform = 'translate(0,0) scale(1)'; // Reset
-  viewer.classList.remove('hidden');
+  imgEl.style.transform = 'translate(0,0) scale(1)'; // Reset visual
+  viewer._scale = 1; 
+  viewer._translateX = 0; 
+  viewer._translateY = 0; // Reset state variables
+  document.getElementById('imageViewer').classList.remove('hidden');
 };
 
 window.closeImageViewer = function() {
@@ -1890,7 +1963,7 @@ window.openGuidebook = function() {
   
   // If admin, always allow open
   if (checkAdminStatus()) {
-    window.open('assets/guide-book.pdf', '_blank');
+    window.open('https://digitalguidebook.vercel.app', '_blank');
     return;
   }
 
