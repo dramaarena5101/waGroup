@@ -223,7 +223,7 @@ const APP_CONFIG = {
     { sender: "", color: "#2196F3", time: "08.02", content: "MasyaAllah..., menyala 🔥🔥🔥 Ditunggu banget nih min! <br>Izin tanya, ada info detail acaranya gak? Kayak rundown atau denah lokasinya gitu biar kita bisa prepare?", isOwn: true },
 
     { sender: "Panitia Drama Arena 5101", color: "#ff5500ff", time: "08.03", content: `
-      Ahlan ustadz <b>{name}</b>, tentu ada stadz! Ini kami kirimkan <b>Guide Book</b> resminya ya, di dalamnya sudah lengkap semua informasinya:
+      Ahlan ustadz <b>{name}</b>, tentu ada ustadz! Ini kami kirimkan <b>Guide Book</b> resminya ya, di dalamnya sudah lengkap semua informasinya:
       <div class="rich-link-card">
         <img src="guidebook_cover_v2.png" class="rich-link-image" alt="Guide Book Cover" />
         <div class="rich-link-body">
@@ -1514,7 +1514,7 @@ function openInfo() {
       const aiExamples = [
         "assalam, waalaikum | Wa'alaikumussalam ustadz! 🙏",
         "halo, hai | Halo ustadz! Ada yang bisa dibantu? 😊",
-        "mantap, keren | Syukron tadz! 🔥",
+        "mantap, keren | Syukron ustadz! 🔥",
         "syukron, makasih | Afwan ustadz, sama-sama! 🙏"
       ].join('\n');
       document.getElementById('adminAiResponsesInput').value = aiExamples;
